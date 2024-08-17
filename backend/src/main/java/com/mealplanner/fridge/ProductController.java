@@ -1,5 +1,6 @@
 package com.mealplanner.fridge;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,13 @@ public class ProductController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public Product addProduct(@RequestBody Product product) {
+    public Product addProduct(@Valid @RequestBody Product product) {
         return repository.save(product);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product updateProduct(@PathVariable("id") final long id, @RequestBody final Product product) {
+    public Product updateProduct(@Valid @PathVariable("id") final long id, @RequestBody final Product product) {
         return repository.findById(id)
                 .map(existingProduct -> {
                     existingProduct.setName(product.getName());

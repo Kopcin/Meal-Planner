@@ -5,43 +5,38 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Getter;
+import lombok.Setter;
+
+// import java.math.BigDecimal;
+
 @Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Setter
+    @Getter
     private String name;
+
+    @Setter
+    @Getter
     private String description;
-    private double price;
 
-    public Product() {}
-    public Product(String name, String description, double price) {
+    @Setter
+    @Getter
+    @PositiveOrZero
+    private Double price;
+
+    // TODO: fix negative numbers
+    public Product() {
+    }
+
+    public Product(String name, String description, Double price) {
         this.name = name;
         this.description = description;
-        this.price = price;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
         this.price = price;
     }
 }
