@@ -1,12 +1,14 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
-import Form from "@/components/Form";
+import ContactForm from "@/components/ContactForm";
 
 export default function ContactPage() {
   return (
     <div>
       <Navbar />
       <h1>Contact Us</h1>
-      <Form />
+      <ContactForm />
     </div>
   );
 }

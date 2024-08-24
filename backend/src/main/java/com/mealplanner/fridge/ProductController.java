@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
+// TODO: make service with injection
+
+/**
+ * REST controller for managing products.
+ */
 @RestController
 @RequestMapping("/api/product")
 public class ProductController {
@@ -14,7 +19,7 @@ public class ProductController {
     private ProductRepository repository;
 
     @GetMapping("/{id}")
-    public Product findById(@PathVariable long id) {
+    public Product findById(@PathVariable Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
@@ -32,7 +37,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product updateProduct(@Valid @PathVariable("id") final long id, @RequestBody final Product product) {
+    public Product updateProduct(@Valid @PathVariable("id") final Long id, @RequestBody final Product product) {
         return repository.findById(id)
                 .map(existingProduct -> {
                     existingProduct.setName(product.getName());
@@ -42,4 +47,6 @@ public class ProductController {
                 })
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
+
+    // TODO: delete mapping
 }

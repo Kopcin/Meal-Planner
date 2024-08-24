@@ -1,10 +1,8 @@
 package com.mealplanner.fridge;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +17,7 @@ public class Product {
 
     @Setter
     @Getter
+    @NotNull
     private String name;
 
     @Setter
@@ -30,8 +29,22 @@ public class Product {
     @PositiveOrZero
     private Double price;
 
-    // TODO: fix negative numbers
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private ProductCategory category;
+// TODO: fix negative numbers
+
     public Product() {
+    }
+
+    public Product(String name) {
+        this.name = name;
+    }
+
+    public Product(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 
     public Product(String name, String description, Double price) {
@@ -39,4 +52,5 @@ public class Product {
         this.description = description;
         this.price = price;
     }
+
 }
