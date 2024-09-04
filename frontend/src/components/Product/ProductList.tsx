@@ -36,7 +36,6 @@ export default function ProductList({
           key={product.id}
           product={product}
           onClick={() => onProductClick(product.id)}
-          isSelected={selectedProductId === product.id}
         />
       ))}
     </div>

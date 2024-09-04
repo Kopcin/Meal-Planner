@@ -23,14 +23,7 @@ export default function FridgePage() {
 
       <ProductList
         onProductClick={handleProductClick}
-        selectedProductId={selectedProductId}
       />
-
-      {selectedProductId ? (
-        <ProductDetail productId={selectedProductId} />
-      ) : (
-        <p>Select a product to see details</p>
-      )}
 
       <h1>Add product</h1>
       <ProductForm />

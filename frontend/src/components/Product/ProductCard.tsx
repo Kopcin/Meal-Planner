@@ -19,10 +19,13 @@ export default function ProductCard({
   return (
     <div
       className={`product-card border rounded-lg shadow-md overflow-hidden bg-white dark:bg-gray-800 ${
-        isSelected ? "border-blue-500" : ""
+        isSelected ? "border-blue-500 scale-105 z-10" : ""
       }`}
       onClick={onClick}
-      style={{ cursor: onClick ? "pointer" : "default" }}
+      style={{
+        cursor: onClick ? "pointer" : "default",
+        transition: "transform 0.2s ease-in-out",
+      }}
     >
       <div className="image-wrapper">
         <Image
