@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+// Could use Neo4j (graph database) or other hierarchic one
 @Entity
 public class ProductCategory {
     @Id
@@ -30,13 +31,15 @@ public class ProductCategory {
     private ProductCategory parent;
 
     @Getter
-    @OneToMany(mappedBy = "parent")
-    private final Set<ProductCategory> subcategories = new HashSet<>();
+    @ManyToMany(mappedBy = "categories")
+    private Set<Product> products = new HashSet<>();
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    public ProductCategory() {
+    }
 
-    public ProductCategory() {}
+    public ProductCategory(String name) {
+        this.name = name;
+    }
 
     public ProductCategory(String name, String description) {
         this.name = name;
@@ -50,26 +53,14 @@ public class ProductCategory {
     }
 
     public void addSubcategory(ProductCategory subcategory) {
-        subcategories.add(subcategory);
         subcategory.setParent(this);
     }
 
     public void removeSubcategory(ProductCategory subcategory) {
-        subcategories.remove(subcategory);
         subcategory.setParent(null);
     }
 
-    private void setParent(ProductCategory productCategory) {
-        this.parent = productCategory;
-    }
-
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setCategory(this);
-    }
-
-    public void removeProduct(Product product) {
-        products.remove(product);
-        product.setCategory(null);
+    private void setParent(ProductCategory parent) {
+        this.parent = parent;
     }
 }

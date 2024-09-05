@@ -7,10 +7,15 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 // import java.math.BigDecimal;
 
 @Entity
 public class Product {
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,12 +33,16 @@ public class Product {
     @Getter
     @PositiveOrZero
     private Double price;
+    // TODO: fix negative numbers
 
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private ProductCategory category;
-// TODO: fix negative numbers
+    @Getter
+    @ManyToMany
+    @JoinTable(
+            name = "product_category_join_table",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<ProductCategory> categories = new HashSet<>();
 
     public Product() {
     }
@@ -53,4 +62,11 @@ public class Product {
         this.price = price;
     }
 
+    public void addCategory(ProductCategory category) {
+        categories.add(category);
+    }
+
+    public void removeCategory(ProductCategory category) {
+        categories.remove(category);
+    }
 }

@@ -25,7 +25,7 @@ public class ProductCategoryService {
     }
 
     public void createCategory(String name) {
-        createCategory(new ProductCategory(name, null));
+        createCategory(new ProductCategory(name));
     }
 
     public void createCategory(String name, String description) {
