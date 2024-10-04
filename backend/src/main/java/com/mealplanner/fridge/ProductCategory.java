@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 // Could use Neo4j (graph database) or other hierarchic one
+@Getter
 @Entity
 public class ProductCategory {
     @Id
@@ -17,20 +18,16 @@ public class ProductCategory {
     private Long id;
 
     @Setter
-    @Getter
     @NotNull
     private String name;
 
     @Setter
-    @Getter
     private String description;
 
-    @Getter
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private ProductCategory parent;
 
-    @Getter
     @ManyToMany(mappedBy = "categories")
     private Set<Product> products = new HashSet<>();
 

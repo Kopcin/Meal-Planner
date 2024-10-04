@@ -13,29 +13,25 @@ import java.util.Set;
 
 // import java.math.BigDecimal;
 
+@Getter
 @Entity
 public class Product {
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
-    @Getter
     @NotNull
     private String name;
 
     @Setter
-    @Getter
     private String description;
 
     @Setter
-    @Getter
     @PositiveOrZero
     private Double price;
     // TODO: fix negative numbers
 
-    @Getter
     @ManyToMany
     @JoinTable(
             name = "product_category_join_table",
@@ -64,9 +60,11 @@ public class Product {
 
     public void addCategory(ProductCategory category) {
         categories.add(category);
+        category.getProducts().add(this);
     }
 
     public void removeCategory(ProductCategory category) {
         categories.remove(category);
+        category.getProducts().remove(this);
     }
 }
