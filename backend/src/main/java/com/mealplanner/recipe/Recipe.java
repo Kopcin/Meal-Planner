@@ -10,6 +10,8 @@ import java.util.List;
 
 @Entity
 public class Recipe {
+    // TODO: add tags, rating, category, instructions
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,7 +19,7 @@ public class Recipe {
     @Setter
     @Getter
     @NotNull
-    private String name;
+    private String title;
 
     @Setter
     @Getter
@@ -34,17 +36,17 @@ public class Recipe {
     public Recipe() {
     }
 
-    public Recipe(String name) {
-        this.name = name;
+    public Recipe(String title) {
+        this.title = title;
     }
 
-    public Recipe(String name, String description) {
-        this.name = name;
+    public Recipe(String title, String description) {
+        this.title = title;
         this.description = description;
     }
 
-    public Recipe(String name, String description, List<Product> products) {
-        this.name = name;
+    public Recipe(String title, String description, List<Product> products) {
+        this.title = title;
         this.description = description;
         this.products = products;
     }

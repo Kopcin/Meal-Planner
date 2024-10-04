@@ -4,6 +4,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.sql.Date;
+import java.text.DateFormat;
+import java.time.LocalDate;
+
 @Configuration
 public class TestDatabase {
     @Bean
@@ -19,7 +23,7 @@ public class TestDatabase {
         service.createCategory(dairy);
         service.createCategory("Drink");
         //service.createCategory("Meat");
-        // TODO: make that "Category name already exists" doesnt
+        // TODO: make that "Category name already exists" doesn't
         //  prevent application from starting
     }
 
@@ -29,5 +33,8 @@ public class TestDatabase {
         repository.save(new Product("Product 1", "Description for product 1", 10.00));
         repository.save(new Product("Product 2", "Description for product 2", 20.00));
         repository.save(new Product("Product 3", "Description for product 3", 30.00));
+        repository.save(new Product("ham", "just ham", 16.99, LocalDate.now().plusDays(5)));
+        repository.save(new Product("cheese", "", 8.99, LocalDate.now().plusDays(12)));
+        repository.save(new Product("bread", "", 3.20, LocalDate.now().plusDays(6)));
     }
 }

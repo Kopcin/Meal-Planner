@@ -21,17 +21,17 @@ public class RecipeService {
         return recipeRepository.findAll();
     }
 
-    public void createRecipe(String name) {
-        createRecipe(new Recipe(name));
+    public void createRecipe(String title) {
+        createRecipe(new Recipe(title));
     }
 
-    public void createRecipe(String name, String description) {
-        createRecipe(new Recipe(name, description));
+    public void createRecipe(String title, String description) {
+        createRecipe(new Recipe(title, description));
     }
 
     public Recipe createRecipe(Recipe recipe) {
-        if (recipeRepository.existsByName(recipe.getName())) {
-            throw new IllegalArgumentException("Recipe name " + recipe.getName() + " already exists");
+        if (recipeRepository.existsByTitle(recipe.getTitle())) {
+            throw new IllegalArgumentException("Recipe " + recipe.getTitle() + " already exists");
         }
         return recipeRepository.save(recipe);
     }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/Product";
+import { getTime } from "@/utils/dateFormatter";
 
 interface ProductListProps {
   onProductClick: (id: number) => void;
@@ -29,9 +30,17 @@ export default function ProductList({
     fetchProducts();
   }, []);
 
+  const sortByExpirationDate = (products: Product[]): Product[] => {
+    return products.sort(
+      (a, b) => getTime(a.expirationDate) - getTime(b.expirationDate)
+    );
+  };
+
+  const sortedProducts = sortByExpirationDate(products);
+
   return (
     <div className="product-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {products.map((product) => (
+      {sortedProducts.map((product) => (
         <ProductCard
           key={product.id}
           product={product}

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,9 @@ public class Product {
     private Double price;
     // TODO: fix negative numbers
 
+    @Setter
+    private LocalDate expirationDate;
+
     @ManyToMany
     @JoinTable(
             name = "product_category_join_table",
@@ -56,6 +60,13 @@ public class Product {
         this.name = name;
         this.description = description;
         this.price = price;
+    }
+
+    public Product(String name, String description, Double price, LocalDate expirationDate) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.expirationDate = expirationDate;
     }
 
     public void addCategory(ProductCategory category) {
