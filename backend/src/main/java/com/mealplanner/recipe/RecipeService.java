@@ -1,8 +1,10 @@
 package com.mealplanner.recipe;
 
+import com.mealplanner.fridge.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,14 +27,19 @@ public class RecipeService {
         createRecipe(new Recipe(title));
     }
 
-    public void createRecipe(String title, String description) {
-        createRecipe(new Recipe(title, description));
+    public void createRecipe(String title, List<String> ingredients) {
+        createRecipe(new Recipe(title, ingredients));
+    }
+
+    public void createRecipe(String title, String description, List<Product> existingProducts, List<String> newProductNames) {
+        createRecipe(new Recipe(title, description, existingProducts, newProductNames));
     }
 
     public Recipe createRecipe(Recipe recipe) {
         if (recipeRepository.existsByTitle(recipe.getTitle())) {
             throw new IllegalArgumentException("Recipe " + recipe.getTitle() + " already exists");
         }
+
         return recipeRepository.save(recipe);
     }
 

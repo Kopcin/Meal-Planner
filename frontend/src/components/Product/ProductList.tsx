@@ -30,10 +30,19 @@ export default function ProductList({
     fetchProducts();
   }, []);
 
+  // const sortByExpirationDate = (products: Product[]): Product[] => {
+  //   return products.sort(
+  //     (a, b) => getTime(a.expirationDate) - getTime(b.expirationDate)
+  //   );
+  // };
+
   const sortByExpirationDate = (products: Product[]): Product[] => {
-    return products.sort(
-      (a, b) => getTime(a.expirationDate) - getTime(b.expirationDate)
-    );
+    return products.sort((a, b) => {
+      if (!a.expirationDate) return 1; // Push 'a' to the end if no expiration date
+      if (!b.expirationDate) return -1; // Push 'b' to the end if no expiration date
+
+      return getTime(a.expirationDate) - getTime(b.expirationDate);
+    });
   };
 
   const sortedProducts = sortByExpirationDate(products);
