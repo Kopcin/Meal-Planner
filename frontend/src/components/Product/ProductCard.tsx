@@ -15,7 +15,7 @@ export default function ProductCard({
   onClick,
   isSelected,
 }: ProductCardProps) {
-  const imageSrc = product.imageSrc || "/images/placeholderImg150x200.png";
+  const image = product.image || "/images/placeholderImg150x200.png";
 
   return (
     <div
@@ -30,7 +30,7 @@ export default function ProductCard({
     >
       <div className="image-wrapper">
         <Image
-          src={imageSrc}
+          src={image}
           alt={product.name}
           width={150}
           height={200}

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,6 +44,8 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<ProductCategory> categories = new HashSet<>();
+
+    private String image;
 
     public Product() {
     }

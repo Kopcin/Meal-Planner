@@ -4,5 +4,5 @@ export interface Product {
   description?: string;
   price?: number;
   expirationDate?: Date | number[];
-  imageSrc?: string;
+  image?: string;
 }

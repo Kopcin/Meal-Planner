@@ -21,9 +21,7 @@ export default function FridgePage() {
 
       <h1>All products</h1>
 
-      <ProductList
-        onProductClick={handleProductClick}
-      />
+      <ProductList onProductClick={handleProductClick} />
 
       <h1>Add product</h1>
       <ProductForm />
