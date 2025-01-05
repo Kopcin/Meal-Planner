@@ -1,0 +1,9 @@
+.available {
+  color: green;
+  font-weight: bold;
+}
+
+.missing {
+  color: red;
+  font-weight: bold;
+}
