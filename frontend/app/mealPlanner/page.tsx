@@ -7,60 +7,89 @@ import { Recipe } from "@/types/Recipe";
 import { formatExpirationDateString, getTime } from "@/utils/dateFormatter";
 import styles from "./mealPlannerPage.module.css";
 
-// obsługa w trybie offline:
-// Można użyć przeglądarkowego magazynu danych (np. localStorage),
-// aby aplikacja działała bez połączenia z internetem.
+// Offline mode handling:
+// You can use browser storage (e.g., localStorage)
+// to allow the app to work without an internet connection.
 
-// TODO: podzieł na grupy posiłków: obiady, desery itp.
+// TODO: Group meals into categories like lunches, desserts, etc.
 
 function generateMealPlan(products: Product[], recipes: Recipe[]) {
-  const sortedProducts = products.sort((a, b) => {
-    const timeA = getTime(a.expirationDate);
-    const timeB = getTime(b.expirationDate);
+  const filteredProducts = products.filter(p => p.expirationDate && getTime(p.expirationDate));
+  const sortedProducts = filteredProducts.sort((a, b) => getTime(a.expirationDate) - getTime(b.expirationDate));
 
-    return timeA - timeB;
-  });
+  console.log("Sorted products by expiration date:", sortedProducts);
 
   const mealPlan = [];
+  const usedProducts = new Set<string>();
+  let usedRecipes = new Set<string>();
+  const currentTime = Date.now();
+  let randomStartIndex = Math.floor(Math.random() * recipes.length);
 
   // Logic to generate a meal plan for 7 days based on recipes and available products.
   for (let i = 0; i < 7; i++) {
-    const recipe = recipes[i % recipes.length]; // Cycle through recipes.
-    const availableProducts = sortedProducts.map((product) => product.name);
+    if (usedRecipes.size === recipes.length) usedRecipes.clear();
 
-    // Check which products are available in the stock
-    const availableDatabaseProducts = recipe.databaseProducts.filter(
-      (dbProduct) => availableProducts.includes(dbProduct.name)
-    );
+    let bestRecipe = null;
+    let bestScore = -Infinity;
 
-    // Missing ingredients are those that are in databaseProducts but not in stock
-    const missingDatabaseProducts = recipe.databaseProducts
-      .filter((dbProduct) => !availableProducts.includes(dbProduct.name))
-      .map((dbProduct) => dbProduct.name);
+    // for (const recipe of recipes) {
+    for (let j = 0; j < recipes.length; j++) {
+      const recipe = recipes[(randomStartIndex + j) % recipes.length];
 
-   // Missing products from unassignedProducts
-    const missingUnassignedProducts = recipe.unassignedProducts.filter(
-      (productName) => !availableProducts.includes(productName)
-    );
+      if (usedRecipes.has(recipe.title)) continue;
 
-    // Prioritize the ingredients that are closest to expiration
-    const sortedAvailableDatabaseProducts = availableDatabaseProducts.sort(
-      (a, b) => {
-        const timeA = getTime(a.expirationDate);
-        const timeB = getTime(b.expirationDate);
-        return timeA - timeB;
+      const availableProducts = sortedProducts.filter(p => !usedProducts.has(p.name)).map((p) => p.name);
+      const availableIngredients = recipe.databaseProducts.filter(dbProduct => availableProducts.includes(dbProduct.name));
+      const missingIngredients = recipe.databaseProducts.filter(dbProduct => !availableProducts.includes(dbProduct.name)).map((dbProduct) => dbProduct.name);
+      const missingUnassignedProducts = recipe.unassignedProducts.filter(productName => !availableProducts.includes(productName));
+
+      console.log(`Checking recipe: ${recipe.title}`);
+      console.log("Available ingredients:", availableIngredients);
+      console.log("Missing ingredients:", missingIngredients, missingUnassignedProducts);
+
+      let expirationScore = 0;
+      for (const ing of availableIngredients) {
+        const expirationTime = getTime(ing.expirationDate);
+        const daysUntilExpiration = Math.floor((expirationTime - currentTime) / (1000 * 60 * 60 * 24)); // ms -> days
+
+        if (daysUntilExpiration <= 0) expirationScore += 50;
+        else if (daysUntilExpiration <= 3) expirationScore += 30;
+        else if (daysUntilExpiration <= 7) expirationScore += 15;
+        else expirationScore += 5;
+
+        console.log(`Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`);
       }
-    );
 
-    mealPlan.push({
-      day: `Day ${i + 1}`,
-      recipe: recipe.title,
-      availableIngredients: sortedAvailableDatabaseProducts,
-      missingIngredients: [
-        ...missingDatabaseProducts,
-        ...missingUnassignedProducts,
-      ],
-    });
+      const numAvailable = availableIngredients.length;
+      const numMissing = missingIngredients.length + missingUnassignedProducts.length;
+      let matchingScore = (numAvailable * 10) - (numMissing * 5);
+      if (matchingScore < 0) matchingScore = 0;
+
+      const totalScore = expirationScore + matchingScore;
+
+      console.log(`Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`);
+
+      if (totalScore > bestScore) {
+        bestScore = totalScore;
+        bestRecipe = {
+          recipe: recipe.title,
+          availableIngredients,
+          missingIngredients: [...missingIngredients, ...missingUnassignedProducts],
+        };
+      }
+    }
+
+    if (bestRecipe) {
+      mealPlan.push({
+        day: `Day ${i + 1}`,
+        ...bestRecipe,
+      });
+
+      usedRecipes.add(bestRecipe.recipe);
+      bestRecipe.availableIngredients.forEach(ing => usedProducts.add(ing.name));
+    }
+
+    randomStartIndex = (randomStartIndex + 1) % recipes.length;
   }
 
   return mealPlan;
