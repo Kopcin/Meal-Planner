@@ -1,0 +1,332 @@
+[
+  {
+    "day": "Monday",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "recipe": "Chicken Salad",
+        "availableIngredients": [
+          {
+            "id": 8,
+            "name": "lettuce",
+            "description": "Fresh lettuce",
+            "price": 2.3,
+            "expirationDate": "2025-05-06T15:37:35.135Z"
+          },
+          {
+            "id": 5,
+            "name": "tomato",
+            "description": "Fresh tomatoes",
+            "price": 4.99,
+            "expirationDate": "2025-05-07T15:37:35.135Z"
+          },
+          {
+            "id": 4,
+            "name": "chicken breast",
+            "description": "Boneless chicken breast",
+            "price": 15,
+            "expirationDate": "2025-05-11T15:37:35.135Z"
+          },
+          {
+            "id": 6,
+            "name": "cucumber",
+            "description": "Green cucumber",
+            "price": 2.5,
+            "expirationDate": "2025-05-14T15:37:35.135Z"
+          }
+        ],
+        "missingIngredients": [
+          "olive oil",
+          "salt",
+          "pepper"
+        ]
+      },
+      {
+        "type": "Lunch",
+        "recipe": "Pasta with Tomato Sauce and Cheese",
+        "availableIngredients": [
+          {
+            "id": 9,
+            "name": "pasta",
+            "description": "Pasta (spaghetti)",
+            "price": 2.99,
+            "expirationDate": "2025-05-24T15:37:35.135Z"
+          },
+          {
+            "id": 10,
+            "name": "tomato sauce",
+            "description": "Tomato sauce (jar)",
+            "price": 4.5,
+            "expirationDate": "2025-06-03T15:37:35.135Z"
+          },
+          {
+            "id": 11,
+            "name": "parmesan",
+            "description": "Parmesan cheese (grated)",
+            "price": 6,
+            "expirationDate": "2025-06-18T15:37:35.135Z"
+          },
+          {
+            "id": 12,
+            "name": "basil",
+            "description": "Fresh basil",
+            "price": 1.8,
+            "expirationDate": "2025-09-01T15:37:35.135Z"
+          }
+        ],
+        "missingIngredients": [
+          "garlic",
+          "olive oil",
+          "salt"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Sandwich",
+        "availableIngredients": [
+          {
+            "id": 1,
+            "name": "ham",
+            "description": "just ham",
+            "price": 16.99,
+            "expirationDate": "2025-05-09T15:37:35.134Z"
+          },
+          {
+            "id": 3,
+            "name": "bread",
+            "description": "",
+            "price": 3.2,
+            "expirationDate": "2025-05-10T15:37:35.135Z"
+          }
+        ],
+        "missingIngredients": [
+          "lettuce",
+          "tomato"
+        ]
+      }
+    ]
+  },
+  {
+    "day": "Tuesday",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "recipe": "Spaghetti bolognese",
+        "availableIngredients": [
+          {
+            "id": 2,
+            "name": "cheese",
+            "description": "",
+            "price": 8.99,
+            "expirationDate": "2025-05-16T15:37:35.135Z"
+          }
+        ],
+        "missingIngredients": []
+      },
+      {
+        "type": "Snack",
+        "recipe": "Buttered Toast",
+        "availableIngredients": [
+          {
+            "id": 7,
+            "name": "butter",
+            "description": "Salted butter",
+            "price": 5.5,
+            "expirationDate": "2025-05-18T15:37:35.135Z"
+          }
+        ],
+        "missingIngredients": []
+      },
+      {
+        "type": "Lunch",
+        "recipe": "Cucumber Salad",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "cucumber",
+          "lettuce",
+          "olive oil",
+          "lemon juice"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Fresh Salad",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "cheese",
+          "cucumber",
+          "lettuce",
+          "olive oil",
+          "vinegar"
+        ]
+      }
+    ]
+  },
+  {
+    "day": "Wednesday",
+    "meals": [
+      {
+        "type": "Brunch",
+        "recipe": "Pancakes",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "syrup"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Berry Smoothie",
+        "availableIngredients": [],
+        "missingIngredients": []
+      }
+    ]
+  },
+  {
+    "day": "Thursday",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "recipe": "Grilled Chicken",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "chicken breast",
+          "garlic",
+          "paprika",
+          "olive oil"
+        ]
+      },
+      {
+        "type": "Lunch",
+        "recipe": "Tomato Soup",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "tomato",
+          "onion",
+          "garlic",
+          "cream"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Pasta with Tomato Sauce and Cheese",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "pasta",
+          "tomato sauce",
+          "parmesan",
+          "basil",
+          "garlic",
+          "olive oil",
+          "salt"
+        ]
+      }
+    ]
+  },
+  {
+    "day": "Friday",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "recipe": "Spaghetti bolognese",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "cheese"
+        ]
+      },
+      {
+        "type": "Snack",
+        "recipe": "Sandwich",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "ham",
+          "bread",
+          "lettuce",
+          "tomato"
+        ]
+      },
+      {
+        "type": "Lunch",
+        "recipe": "Fresh Salad",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "cheese",
+          "cucumber",
+          "lettuce",
+          "olive oil",
+          "vinegar"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Pancakes",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "syrup"
+        ]
+      }
+    ]
+  },
+  {
+    "day": "Saturday",
+    "meals": [
+      {
+        "type": "Brunch",
+        "recipe": "Berry Smoothie",
+        "availableIngredients": [],
+        "missingIngredients": []
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Chicken Salad",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "chicken breast",
+          "tomato",
+          "cucumber",
+          "lettuce",
+          "olive oil",
+          "salt",
+          "pepper"
+        ]
+      }
+    ]
+  },
+  {
+    "day": "Sunday",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "recipe": "Grilled Chicken",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "chicken breast",
+          "garlic",
+          "paprika",
+          "olive oil"
+        ]
+      },
+      {
+        "type": "Lunch",
+        "recipe": "Tomato Soup",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "tomato",
+          "onion",
+          "garlic",
+          "cream"
+        ]
+      },
+      {
+        "type": "Dinner",
+        "recipe": "Cucumber Salad",
+        "availableIngredients": [],
+        "missingIngredients": [
+          "cucumber",
+          "lettuce",
+          "olive oil",
+          "lemon juice"
+        ]
+      }
+    ]
+  }
+]

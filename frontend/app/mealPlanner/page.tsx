@@ -5,7 +5,7 @@ import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { formatExpirationDateString } from "@/utils/dateFormatter";
 import styles from "./mealPlannerPage.module.css";
-import { generateMealPlan } from "./generateMealPlan";
+import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)

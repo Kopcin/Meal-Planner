@@ -1,6 +1,7 @@
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { getTime } from "@/utils/dateFormatter";
+import { logInBrowser } from "@/utils/logger";
 
 export const mealTemplates = {
   standard: {
@@ -40,7 +41,7 @@ export function generateMealPlan(
   recipes: Recipe[],
   templateType: keyof typeof mealTemplates = "standard"
 ) {
-  const template = mealTemplates[templateType] || mealTemplates.standard;
+  const template = mealTemplates[templateType] || mealTemplates["standard"];
   const mealPlan: DayPlan[] = [];
   let usedRecipes = new Set();
   let usedProducts = new Set();
@@ -50,7 +51,7 @@ export function generateMealPlan(
     .filter(p => p.expirationDate)
     .sort((a, b) => getTime(a.expirationDate) - getTime(b.expirationDate));
 
-  console.log("Sorted products by expiration date:", sortedProducts);
+  logInBrowser("Sorted products by expiration date:", sortedProducts);
 
   for (const [day, mealTypes] of Object.entries(template)) {
     const dayPlan: DayPlan = { day, meals: [] };
@@ -71,9 +72,9 @@ export function generateMealPlan(
         const missingIngredients = recipe.databaseProducts.filter(dbP => !availableIngredients.some(p => p.name === dbP.name)).map(p => p.name);
         const missingUnassignedProducts = recipe.unassignedProducts.filter(productName => !availableIngredients.some(p => p.name === productName));
 
-        console.log(`Day: ${day}, Meal: ${mealType}, Checking recipe: ${recipe.title}`);
-        console.log("Available ingredients:", availableIngredients);
-        console.log("Missing ingredients:", missingIngredients, missingUnassignedProducts);
+        logInBrowser(`Day: ${day}, Meal: ${mealType}, Checking recipe: ${recipe.title}`);
+        logInBrowser("Available ingredients:", availableIngredients);
+        logInBrowser("Missing ingredients:", missingIngredients, missingUnassignedProducts);
 
         let expirationScore = 0;
         availableIngredients.forEach(ing => {
@@ -86,7 +87,7 @@ export function generateMealPlan(
           // else expirationScore += 5;
           expirationScore += Math.max(0, -daysUntilExpiration + 100);
 
-          console.log(`Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`);
+          logInBrowser(`Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`);
         });
 
         // Matching score based on available and missing ingredients
@@ -95,7 +96,7 @@ export function generateMealPlan(
 
         const totalScore = expirationScore + matchingScore;
 
-        console.log(`Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`);
+        logInBrowser(`Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`);
 
         if (totalScore > bestScore) {
           bestScore = totalScore;
