@@ -25,10 +25,13 @@ describe("generateMealPlan", () => {
             .slice(0, 5)
             .map(simplifyMeal);
 
-        console.table(firstFiveMeals);
-        console.table(firstFiveExpectedMeals);
-
-        expect(firstFiveMeals).toEqual(firstFiveExpectedMeals);
+        try {
+            expect(firstFiveMeals).toEqual(firstFiveExpectedMeals);
+        } catch (error) {
+            console.table(firstFiveMeals);
+            console.table(firstFiveExpectedMeals);
+            throw error;
+        }
     });
 
     it(`should include "Sandwich" as breakfast on Tuesday for template "standard"`, () => {
@@ -39,9 +42,6 @@ describe("generateMealPlan", () => {
         const breakfast = tuesdayPlan?.meals.find(meal => meal.type === "Breakfast");
         expect(breakfast?.recipe).toBe("Sandwich");
     })
-
-    // TODO: check if test generates same plan like on client and in correct order
-
 });
 
 describe("generateMealPlan - template structure", () => {

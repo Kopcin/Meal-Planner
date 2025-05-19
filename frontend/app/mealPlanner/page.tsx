@@ -5,7 +5,7 @@ import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { formatExpirationDateString } from "@/utils/dateFormatter";
 import styles from "./mealPlannerPage.module.css";
-import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
+import { DayPlan, generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -18,14 +18,8 @@ export default function MealPlanPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [numDays, setNumDays] = useState(7);
   const [mealsPerDay, setMealsPerDay] = useState(3);
-  const [mealPlan, setMealPlan] = useState<{
-    day: string;
-    meals: {
-      recipe: string;
-      availableIngredients: Product[];
-      missingIngredients: string[];
-    }[];
-  }[]>([]);
+  const [mealPlan, setMealPlan] = useState<DayPlan[]>([]);
+  const [shoppingList, setShoppingList] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -50,6 +44,13 @@ export default function MealPlanPage() {
   const handleGenerateMealPlan = () => {
     const plan = generateMealPlan(products, recipes);
     setMealPlan(plan);
+
+    const allMissingIngredients = plan
+      .flatMap(day => day.meals)
+      .flatMap(meal => meal.missingIngredients);
+
+    const uniqueMissingIngredients = [...new Set(allMissingIngredients)];
+    setShoppingList(uniqueMissingIngredients);
   };
 
   return (
@@ -83,9 +84,12 @@ export default function MealPlanPage() {
           />
         </label>
 
-        <button onClick={handleGenerateMealPlan} className={styles.generateButton}>
-          Generate Meal Plan
-        </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1>Meal Plan</h1>
+          <button onClick={handleGenerateMealPlan} className={styles.generateButton}>
+            Generate New Plan
+          </button>
+        </div>
       </div>
 
       {mealPlan.length > 0 ? (
@@ -95,7 +99,7 @@ export default function MealPlanPage() {
               <h2>{dayPlan.day}</h2>
               {dayPlan.meals.map((meal, mealIndex) => (
                 <div key={mealIndex}>
-                  <h3>Meal {mealIndex + 1}: {meal.recipe}</h3>
+                  <h3>{meal.type}: {meal.recipe}</h3>
                   <p>
                     Available Ingredients:{" "}
                     {meal.availableIngredients.length > 0 ? (
@@ -130,6 +134,18 @@ export default function MealPlanPage() {
       ) : (
         <p>No meal plan generated yet. Select options and click the button above.</p>
       )}
+
+      {shoppingList.length > 0 && (
+        <div>
+          <h2>Shopping List</h2>
+          <ul>
+            {shoppingList.map((ingredient, index) => (
+              <li key={index}>{ingredient}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 }
