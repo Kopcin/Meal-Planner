@@ -2,6 +2,7 @@ package com.mealplanner.auth;
 
 import com.mealplanner.auth.dto.LoginRequest;
 import com.mealplanner.auth.dto.RegisterRequest;
+import com.mealplanner.auth.user.Role;
 import com.mealplanner.auth.user.User;
 import com.mealplanner.auth.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Map;
 
 @Service
@@ -28,9 +28,13 @@ public class AuthService {
             return ResponseEntity.badRequest().body("Username already taken");
         }
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .build();
+
         userRepository.save(user);
 
         return ResponseEntity.ok().body(Map.of("message", "User registered"));
