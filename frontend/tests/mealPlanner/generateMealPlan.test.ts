@@ -34,13 +34,13 @@ describe("generateMealPlan", () => {
         }
     });
 
-    it(`should include "Sandwich" as breakfast on Tuesday for template "standard"`, () => {
+    it(`should include "Spaghetti bolognese" as breakfast on Tuesday for template "standard"`, () => {
         const plan = generateMealPlan(mockProducts, mockRecipes, "standard");
         const tuesdayPlan = plan.find(dayPlan => dayPlan.day === "Tuesday");
         expect(tuesdayPlan).toBeDefined();
 
         const breakfast = tuesdayPlan?.meals.find(meal => meal.type === "Breakfast");
-        expect(breakfast?.recipe).toBe("Sandwich");
+        expect(breakfast?.recipe).toBe("Spaghetti bolognese");
     })
 });
 

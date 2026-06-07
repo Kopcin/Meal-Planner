@@ -1,26 +1,27 @@
-"use client"
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
+import styles from "./navbar.module.css";
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/contact", label: "Contact" },
+  { href: "/fridge", label: "Fridge" },
+  { href: "/recipes", label: "Recipes" },
+  { href: "/mealPlanner", label: "Meal Planner" },
+];
 
 export default function Navbar() {
   return (
-    <nav>
-      <ul>
-        <li>
-          <Link href="/">Home</Link>
-        </li>
-        <li>
-          <Link href="/contact">Contact</Link>
-        </li>
-        <li>
-          <Link href="/fridge">Fridge</Link>
-        </li>
-        <li>
-          <Link href="/recipes">Recipes</Link>
-        </li>
-        <li>
-          <Link href="/mealPlanner">MealPlanner</Link>
-        </li>
+    <nav className={styles.navbar}>
+      <ul className={styles.navList}>
+        {navItems.map((item) => (
+          <li key={item.href} className={styles.navItem}>
+            <Link href={item.href} className={styles.navLink}>
+              {item.label}
+            </Link>
+          </li>
+        ))}
       </ul>
     </nav>
   );
