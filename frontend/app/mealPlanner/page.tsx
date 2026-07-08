@@ -50,7 +50,7 @@ export default function MealPlanPage() {
   }, []);
 
   const handleGenerateMealPlan = () => {
-    const plan = generateMealPlan(products, recipes);
+    const plan = generateMealPlan(products, recipes, numDays, mealsPerDay);
     setMealPlan(plan);
 
     const allMissingIngredients = plan

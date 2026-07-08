@@ -4,25 +4,10 @@ import { getTime } from "@/utils/dateFormatter";
 import { logInBrowser } from "@/utils/logger";
 
 export const mealTemplates = {
-  standard: {
-    Monday: ["Breakfast", "Lunch", "Dinner"],
-    Tuesday: ["Breakfast", "Snack", "Lunch", "Dinner"],
-    Wednesday: ["Brunch", "Dinner"],
-    Thursday: ["Breakfast", "Lunch", "Dinner"],
-    Friday: ["Breakfast", "Snack", "Lunch", "Dinner"],
-    Saturday: ["Brunch", "Dinner"],
-    Sunday: ["Breakfast", "Lunch", "Dinner"],
+  default: {
+    allowedMeals: ["Breakfast", "Lunch", "Dinner", "Snack"],
   },
-  intermittentFasting: {
-    Monday: ["Lunch", "Dinner"],
-    Tuesday: ["Lunch", "Dinner"],
-    Wednesday: ["Lunch", "Dinner"],
-    Thursday: ["Lunch", "Dinner"],
-    Friday: ["Lunch", "Dinner"],
-    Saturday: ["Brunch", "Dinner"],
-    Sunday: ["Brunch", "Dinner"],
-  },
-};
+} as const;
 
 type Meal = {
   type: string;
@@ -39,12 +24,15 @@ export type DayPlan = {
 export function generateMealPlan(
   products: Product[],
   recipes: Recipe[],
-  templateType: keyof typeof mealTemplates = "standard"
+  numDays: number = 7,
+  mealsPerDay: number = 3,
 ) {
-  const template = mealTemplates[templateType] || mealTemplates["standard"];
+  const template = mealTemplates.default;
+  const mealsForDay = template.allowedMeals.slice(0, mealsPerDay);
   const mealPlan: DayPlan[] = [];
-  let usedRecipes = new Set();
-  let usedProducts = new Set();
+
+  let usedRecipes = new Set<string>();
+  let usedProducts = new Set<string>();
   let randomStartIndex = Math.floor(Math.random() * recipes.length);
 
   const sortedProducts = products
@@ -53,13 +41,14 @@ export function generateMealPlan(
 
   logInBrowser("Sorted products by expiration date:", sortedProducts);
 
-  for (const [day, mealTypes] of Object.entries(template)) {
-    const dayPlan: DayPlan = { day, meals: [] };
+  for (let i = 0; i < numDays; i++) {
+    const dayName = `Day ${i + 1}`;
+    const dayPlan: DayPlan = { day: dayName, meals: [] };
 
-    for (const mealType of mealTypes) {
+    for (const mealType of mealsForDay) {
       if (usedRecipes.size === recipes.length) usedRecipes.clear();
 
-      let bestRecipe = null;
+      let bestRecipe: Meal | null = null;
       let bestScore = -Infinity;
 
       // Evaluate each recipe
@@ -72,11 +61,12 @@ export function generateMealPlan(
         const missingIngredients = recipe.databaseProducts.filter(dbP => !availableIngredients.some(p => p.name === dbP.name)).map(p => p.name);
         const missingUnassignedProducts = recipe.unassignedProducts.filter(productName => !availableIngredients.some(p => p.name === productName));
 
-        logInBrowser(`Day: ${day}, Meal: ${mealType}, Checking recipe: ${recipe.title}`);
+        logInBrowser(`Day: ${i + 1}, Meal: ${mealType}, Checking recipe: ${recipe.title}`);
         logInBrowser("Available ingredients:", availableIngredients);
         logInBrowser("Missing ingredients:", missingIngredients, missingUnassignedProducts);
 
         let expirationScore = 0;
+
         availableIngredients.forEach(ing => {
           const expirationTime = getTime(ing.expirationDate);
           const daysUntilExpiration = Math.floor((expirationTime - Date.now()) / (1000 * 60 * 60 * 24)); // ms -> days
