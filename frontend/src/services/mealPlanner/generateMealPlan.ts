@@ -12,6 +12,7 @@ export const mealTemplates = {
 type Meal = {
   type: string;
   recipe: string;
+  recipeId: number;
   availableIngredients: Product[];
   missingIngredients: string[];
 };
@@ -93,6 +94,7 @@ export function generateMealPlan(
           bestRecipe = {
             type: mealType,
             recipe: recipe.title,
+            recipeId: recipe.id,
             availableIngredients,
             missingIngredients: [...missingIngredients, ...missingUnassignedProducts],
           };

@@ -1,0 +1,33 @@
+package com.mealplanner.mealplan.entity;
+
+import jakarta.persistence.*;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Setter
+public class DayPlan {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private LocalDate date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MealPlan mealPlan;
+
+    @OneToMany(
+            mappedBy = "dayPlan",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<MealSlot> mealSlots = new ArrayList<>();
+
+    public void addMealSlot(MealSlot mealSlot) {
+        mealSlots.add(mealSlot);
+        mealSlot.setDayPlan(this);
+    }
+}

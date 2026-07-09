@@ -60,6 +60,47 @@ export default function MealPlanPage() {
     setShoppingList([...new Set(allMissingIngredients)]);
   };
 
+  const handleSaveMealPlan = async () => {
+    if (mealPlan.length === 0) {
+      return;
+    }
+
+    const payload = {
+      name: "My meal plan",
+      startDate: new Date().toISOString().split("T")[0],
+
+      dayPlans: mealPlan.map((day) => ({
+        date: new Date().toISOString().split("T")[0],
+        mealSlots: day.meals.map((meal) => ({
+          name: meal.type,
+          recipeId: meal.recipeId,
+        })),
+      })),
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/api/meal-plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save meal plan");
+      }
+
+      const savedPlan = await response.json();
+
+      console.log("Saved meal plan:", savedPlan);
+
+      alert("Meal plan saved!");
+    } catch (error) {
+      console.error("Saving meal plan failed:", error);
+    }
+  };
+
   const hasMealPlan = mealPlan.length > 0;
 
   return (
@@ -81,6 +122,15 @@ export default function MealPlanPage() {
           >
             Generate New Plan
           </button>
+
+          {mealPlan.length > 0 && (
+            <button
+              onClick={handleSaveMealPlan}
+              className={styles.generateButton}
+            >
+              Save Plan
+            </button>
+          )}
         </section>
 
         <section className={styles.controlsCard}>
