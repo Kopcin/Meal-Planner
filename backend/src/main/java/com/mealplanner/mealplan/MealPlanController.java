@@ -19,7 +19,7 @@ public class MealPlanController {
         return service.findById(id);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public Collection<MealPlan> findPlans() {
         return service.findAll();
     }

@@ -1,3 +1,4 @@
+import { DayPlan, Meal } from "@/types/MealPlan";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { getTime } from "@/utils/dateFormatter";
@@ -8,19 +9,6 @@ export const mealTemplates = {
     allowedMeals: ["Breakfast", "Lunch", "Dinner", "Snack"],
   },
 } as const;
-
-type Meal = {
-  type: string;
-  recipe: string;
-  recipeId: number;
-  availableIngredients: Product[];
-  missingIngredients: string[];
-};
-
-export type DayPlan = {
-  day: string;
-  meals: Meal[];
-};
 
 export function generateMealPlan(
   products: Product[],

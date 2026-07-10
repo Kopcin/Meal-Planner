@@ -1,14 +1,19 @@
 "use client";
-import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import MealPlanHeader from "@/components/MealPlan/MealPlanHeader";
+import MealPlanControls from "@/components/MealPlan/MealPlanControls";
+import MealPlanView from "@/components/MealPlan/MealPlanView";
+import { DayPlan, MealPlanSummary, SavedMealPlan } from "@/types/MealPlan";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
-import { formatExpirationDateString } from "@/utils/dateFormatter";
-import styles from "./mealPlannerPage.module.css";
+import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
 import {
-  DayPlan,
-  generateMealPlan,
-} from "@/services/mealPlanner/generateMealPlan";
+  saveMealPlan,
+  getMealPlans,
+  getMealPlan,
+} from "@/services/mealPlanner/mealPlanApi";
+import styles from "./mealPlannerPage.module.css";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -23,6 +28,12 @@ export default function MealPlanPage() {
   const [mealsPerDay, setMealsPerDay] = useState(3);
   const [mealPlan, setMealPlan] = useState<DayPlan[]>([]);
   const [shoppingList, setShoppingList] = useState<string[]>([]);
+
+  const [savedPlans, setSavedPlans] = useState<MealPlanSummary[]>([]);
+  const [openedPlanId, setOpenedPlanId] = useState<number | null>(null);
+  const [openedPlan, setOpenedPlan] = useState<SavedMealPlan | null>(null);
+
+  const hasMealPlan = mealPlan.length > 0;
 
   useEffect(() => {
     async function fetchData() {
@@ -39,6 +50,8 @@ export default function MealPlanPage() {
 
         setProducts(productsData);
         setRecipes(recipesData);
+
+        await loadMealPlans();
       } catch (error) {
         // add distinct error handling
         console.error("Error fetching products:", error);
@@ -61,14 +74,13 @@ export default function MealPlanPage() {
   };
 
   const handleSaveMealPlan = async () => {
-    if (mealPlan.length === 0) {
+    if (!hasMealPlan) {
       return;
     }
 
     const payload = {
       name: "My meal plan",
       startDate: new Date().toISOString().split("T")[0],
-
       dayPlans: mealPlan.map((day) => ({
         date: new Date().toISOString().split("T")[0],
         mealSlots: day.meals.map((meal) => ({
@@ -78,88 +90,68 @@ export default function MealPlanPage() {
       })),
     };
 
+    console.log("Saving meal plan:", payload);
+
     try {
-      const response = await fetch("http://localhost:8080/api/meal-plans", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save meal plan");
-      }
-
-      const savedPlan = await response.json();
+      const savedPlan = await saveMealPlan(payload);
 
       console.log("Saved meal plan:", savedPlan);
+
+      await loadMealPlans();
 
       alert("Meal plan saved!");
     } catch (error) {
       console.error("Saving meal plan failed:", error);
+      alert("Failed to save meal plan.");
     }
   };
 
-  const hasMealPlan = mealPlan.length > 0;
+  // const handleLoadMealPlan = (planId: number) => {
+  //   const planToLoad = savedPlans.find((plan) => plan.id === planId);
+  // };
+
+  const loadMealPlans = async () => {
+    try {
+      const plans = await getMealPlans();
+      setSavedPlans(plans);
+    } catch (error) {
+      console.error("Failed to load meal plans:", error);
+    }
+  };
+
+  const handleOpenMealPlan = async (planId: number) => {
+    if (openedPlanId === planId) {
+      setOpenedPlanId(null);
+      setOpenedPlan(null);
+      return;
+    }
+
+    try {
+      const plan = await getMealPlan(planId);
+      setOpenedPlanId(planId);
+      setOpenedPlan(plan);
+    } catch (error) {
+      console.error(`Failed to open meal plan ${planId}:`, error);
+    }
+  };
 
   return (
     <div className={styles.page}>
       <Navbar />
 
       <main className={styles.container}>
-        <section className={styles.headerCard}>
-          <div>
-            <h1 className={styles.title}>Meal Planner</h1>
-            <p className={styles.subtitle}>
-              Generate a plan based on what you already have in the fridge.
-            </p>
-          </div>
+        <MealPlanHeader
+          canSave={hasMealPlan}
+          onGenerate={handleGenerateMealPlan}
+          onSave={handleSaveMealPlan}
+        />
 
-          <button
-            onClick={handleGenerateMealPlan}
-            className={styles.generateButton}
-          >
-            Generate New Plan
-          </button>
-
-          {mealPlan.length > 0 && (
-            <button
-              onClick={handleSaveMealPlan}
-              className={styles.generateButton}
-            >
-              Save Plan
-            </button>
-          )}
-        </section>
-
-        <section className={styles.controlsCard}>
-          <div className={styles.controlsGrid}>
-            <label className={styles.control}>
-              <span>Number of Days</span>
-              <input
-                className={styles.input}
-                type="number"
-                min="1"
-                max="14"
-                value={numDays}
-                onChange={(e) => setNumDays(parseInt(e.target.value) || 1)}
-              />
-            </label>
-
-            <label className={styles.control}>
-              <span>Meals per Day</span>
-              <input
-                className={styles.input}
-                type="number"
-                min="1"
-                max="5"
-                value={mealsPerDay}
-                onChange={(e) => setMealsPerDay(parseInt(e.target.value) || 1)}
-              />
-            </label>
-          </div>
-        </section>
+        <MealPlanControls
+          numDays={numDays}
+          mealsPerDay={mealsPerDay}
+          setNumDays={setNumDays}
+          setMealsPerDay={setMealsPerDay}
+        />
 
         {!hasMealPlan ? (
           <section className={styles.emptyState}>
@@ -169,73 +161,23 @@ export default function MealPlanPage() {
             </p>
           </section>
         ) : (
-          <section className={styles.planGrid}>
-            {mealPlan.map((dayPlan, index) => (
-              <article key={index} className={styles.dayCard}>
-                <header className={styles.dayHeader}>
-                  <h2 className={styles.dayTitle}>{dayPlan.day}</h2>
-                  <span className={styles.dayBadge}>
-                    {dayPlan.meals.length} meals
-                  </span>
-                </header>
-
-                <div className={styles.mealsList}>
-                  {dayPlan.meals.map((meal, mealIndex) => (
-                    <div key={mealIndex} className={styles.mealCard}>
-                      <div className={styles.mealTopRow}>
-                        <h3 className={styles.mealTitle}>
-                          <span className={styles.mealType}>{meal.type}</span>
-                          <span className={styles.mealRecipe}>
-                            {meal.recipe}
-                          </span>
-                        </h3>
-                      </div>
-
-                      <div className={styles.infoBlock}>
-                        <p className={styles.infoLabel}>
-                          Available ingredients
-                        </p>
-                        <div className={styles.tagWrap}>
-                          {meal.availableIngredients.length > 0 ? (
-                            meal.availableIngredients.map((product, idx) => (
-                              <span key={idx} className={styles.availableTag}>
-                                {product.name}
-                                <span className={styles.tagMeta}>
-                                  {" "}
-                                  ·{" "}
-                                  {formatExpirationDateString(
-                                    product.expirationDate,
-                                  )}
-                                </span>
-                              </span>
-                            ))
-                          ) : (
-                            <span className={styles.emptyTag}>None</span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={styles.infoBlock}>
-                        <p className={styles.infoLabel}>Missing ingredients</p>
-                        <div className={styles.tagWrap}>
-                          {meal.missingIngredients.length > 0 ? (
-                            meal.missingIngredients.map((ingredient, idx) => (
-                              <span key={idx} className={styles.missingTag}>
-                                {ingredient}
-                              </span>
-                            ))
-                          ) : (
-                            <span className={styles.emptyTag}>None</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </section>
+          <MealPlanView mealPlan={mealPlan} />
         )}
+
+        <section className={styles.savedPlansContainer}>
+          <h2 className={styles.sectionTitle}>Saved Meal Plans</h2>
+          {savedPlans.map((plan) => (
+            <div key={plan.id} className={styles.savedPlanItem}>
+              <button onClick={() => handleOpenMealPlan(plan.id)}>
+                {openedPlanId === plan.id ? "▼" : "▶"} {plan.name}
+              </button>
+
+              {openedPlanId === plan.id && openedPlan && (
+                <MealPlanView mealPlan={openedPlan.dayPlans} />
+              )}
+            </div>
+          ))}
+        </section>
 
         {shoppingList.length > 0 && (
           <section className={styles.shoppingCard}>
