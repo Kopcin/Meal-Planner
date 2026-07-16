@@ -1,6 +1,6 @@
 package com.mealplanner.mealplan.dto;
 
-public record CreateMealSlotRequest(
+public record MealSlotRequest(
         String label,
         Long recipeId
 ) {

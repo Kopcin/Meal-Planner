@@ -3,6 +3,7 @@ import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { getTime } from "@/utils/dateFormatter";
 import { logInBrowser } from "@/utils/logger";
+import { calculateMealIngredients } from "./calculateMealIngredients";
 
 export const mealTemplates = {
   default: {
@@ -25,14 +26,14 @@ export function generateMealPlan(
   let randomStartIndex = Math.floor(Math.random() * recipes.length);
 
   const sortedProducts = products
-    .filter(p => p.expirationDate)
+    .filter((p) => p.expirationDate)
     .sort((a, b) => getTime(a.expirationDate) - getTime(b.expirationDate));
 
   logInBrowser("Sorted products by expiration date:", sortedProducts);
 
   for (let i = 0; i < numDays; i++) {
     const dayName = `Day ${i + 1}`;
-    const dayPlan: DayPlan = { day: dayName, meals: [] };
+    const dayPlan: DayPlan = { date: dayName, mealSlots: [] };
 
     for (const mealType of mealsForDay) {
       if (usedRecipes.size === recipes.length) usedRecipes.clear();
@@ -46,19 +47,29 @@ export function generateMealPlan(
         const recipe = recipes[(randomStartIndex + j) % recipes.length];
         if (usedRecipes.has(recipe.title)) continue;
 
-        const availableIngredients = sortedProducts.filter(p => recipe.databaseProducts.some(dbP => dbP.name === p.name) && !usedProducts.has(p.name));
-        const missingIngredients = recipe.databaseProducts.filter(dbP => !availableIngredients.some(p => p.name === dbP.name)).map(p => p.name);
-        const missingUnassignedProducts = recipe.unassignedProducts.filter(productName => !availableIngredients.some(p => p.name === productName));
+        const {
+          availableIngredients,
+          missingIngredients,
+          missingUnassignedProducts,
+        } = calculateMealIngredients(recipe, sortedProducts, usedProducts);
 
-        logInBrowser(`Day: ${i + 1}, Meal: ${mealType}, Checking recipe: ${recipe.title}`);
+        logInBrowser(
+          `Day: ${i + 1}, Meal: ${mealType}, Checking recipe: ${recipe.title}`,
+        );
         logInBrowser("Available ingredients:", availableIngredients);
-        logInBrowser("Missing ingredients:", missingIngredients, missingUnassignedProducts);
+        logInBrowser(
+          "Missing ingredients:",
+          missingIngredients,
+          missingUnassignedProducts,
+        );
 
         let expirationScore = 0;
 
-        availableIngredients.forEach(ing => {
+        availableIngredients.forEach((ing) => {
           const expirationTime = getTime(ing.expirationDate);
-          const daysUntilExpiration = Math.floor((expirationTime - Date.now()) / (1000 * 60 * 60 * 24)); // ms -> days
+          const daysUntilExpiration = Math.floor(
+            (expirationTime - Date.now()) / (1000 * 60 * 60 * 24),
+          ); // ms -> days
 
           // if (daysUntilExpiration <= 0) expirationScore += 100;
           // else if (daysUntilExpiration <= 3) expirationScore += 30;
@@ -66,34 +77,45 @@ export function generateMealPlan(
           // else expirationScore += 5;
           expirationScore += Math.max(0, -daysUntilExpiration + 100);
 
-          logInBrowser(`Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`);
+          logInBrowser(
+            `Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`,
+          );
         });
 
         // Matching score based on available and missing ingredients
-        let matchingScore = availableIngredients.length * 5 - (missingIngredients.length + missingUnassignedProducts.length) * 5;
+        let matchingScore =
+          availableIngredients.length * 5 -
+          (missingIngredients.length + missingUnassignedProducts.length) * 5;
         if (matchingScore < 0) matchingScore = 0;
 
         const totalScore = expirationScore + matchingScore;
 
-        logInBrowser(`Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`);
+        logInBrowser(
+          `Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`,
+        );
 
         if (totalScore > bestScore) {
           bestScore = totalScore;
           bestRecipe = {
-            type: mealType,
-            recipe: recipe.title,
+            label: mealType,
+            recipeName: recipe.title,
             recipeId: recipe.id,
             availableIngredients,
-            missingIngredients: [...missingIngredients, ...missingUnassignedProducts],
+            missingIngredients: [
+              ...missingIngredients,
+              ...missingUnassignedProducts,
+            ],
           };
         }
       }
 
       if (bestRecipe) {
-        dayPlan.meals.push(bestRecipe);
-        usedRecipes.add(bestRecipe.recipe);
+        dayPlan.mealSlots.push(bestRecipe);
+        usedRecipes.add(bestRecipe.recipeName);
 
-        bestRecipe.availableIngredients.forEach(ingredient => usedProducts.add(ingredient.name));
+        bestRecipe.availableIngredients.forEach((ingredient) =>
+          usedProducts.add(ingredient.name),
+        );
       }
     }
 

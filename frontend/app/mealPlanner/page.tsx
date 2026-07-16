@@ -4,7 +4,11 @@ import Navbar from "@/components/Navbar";
 import MealPlanHeader from "@/components/MealPlan/MealPlanHeader";
 import MealPlanControls from "@/components/MealPlan/MealPlanControls";
 import MealPlanView from "@/components/MealPlan/MealPlanView";
-import { DayPlan, MealPlanSummary, SavedMealPlan } from "@/types/MealPlan";
+import {
+  DayPlan,
+  MealPlanSummaryResponse,
+  MealPlanResponse,
+} from "@/types/MealPlan";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
@@ -14,6 +18,7 @@ import {
   getMealPlan,
 } from "@/services/mealPlanner/mealPlanApi";
 import styles from "./mealPlannerPage.module.css";
+import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -29,9 +34,9 @@ export default function MealPlanPage() {
   const [mealPlan, setMealPlan] = useState<DayPlan[]>([]);
   const [shoppingList, setShoppingList] = useState<string[]>([]);
 
-  const [savedPlans, setSavedPlans] = useState<MealPlanSummary[]>([]);
+  const [savedPlans, setSavedPlans] = useState<MealPlanSummaryResponse[]>([]);
   const [openedPlanId, setOpenedPlanId] = useState<number | null>(null);
-  const [openedPlan, setOpenedPlan] = useState<SavedMealPlan | null>(null);
+  const [openedPlan, setOpenedPlan] = useState<DayPlan[] | null>(null);
 
   const hasMealPlan = mealPlan.length > 0;
 
@@ -67,7 +72,7 @@ export default function MealPlanPage() {
     setMealPlan(plan);
 
     const allMissingIngredients = plan
-      .flatMap((day) => day.meals)
+      .flatMap((day) => day.mealSlots)
       .flatMap((meal) => meal.missingIngredients);
 
     setShoppingList([...new Set(allMissingIngredients)]);
@@ -78,16 +83,24 @@ export default function MealPlanPage() {
       return;
     }
 
+    const startDate = new Date();
+    const startDateString = startDate.toISOString().split("T")[0];
+
     const payload = {
       name: "My meal plan",
-      startDate: new Date().toISOString().split("T")[0],
-      dayPlans: mealPlan.map((day) => ({
-        date: new Date().toISOString().split("T")[0],
-        mealSlots: day.meals.map((meal) => ({
-          name: meal.type,
-          recipeId: meal.recipeId,
-        })),
-      })),
+      startDate: startDateString,
+      dayPlans: mealPlan.map((day, index) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + index);
+
+        return {
+          date: date.toISOString().split("T")[0],
+          mealSlots: day.mealSlots.map((meal) => ({
+            label: meal.label,
+            recipeId: meal.recipeId,
+          })),
+        };
+      }),
     };
 
     console.log("Saving meal plan:", payload);
@@ -128,8 +141,11 @@ export default function MealPlanPage() {
 
     try {
       const plan = await getMealPlan(planId);
+
+      const enrichedPlan = enrichMealPlan(plan.dayPlans, recipes, products);
+
       setOpenedPlanId(planId);
-      setOpenedPlan(plan);
+      setOpenedPlan(enrichedPlan);
     } catch (error) {
       console.error(`Failed to open meal plan ${planId}:`, error);
     }
@@ -173,7 +189,7 @@ export default function MealPlanPage() {
               </button>
 
               {openedPlanId === plan.id && openedPlan && (
-                <MealPlanView mealPlan={openedPlan.dayPlans} />
+                <MealPlanView mealPlan={openedPlan} />
               )}
             </div>
           ))}

@@ -18,7 +18,7 @@ describe("generateMealPlan", () => {
             missingIngredients: meal.missingIngredients,
         });
 
-        const firstFiveMeals = plan.flatMap(dayPlan => dayPlan.meals)
+        const firstFiveMeals = plan.flatMap(dayPlan => dayPlan.mealSlots)
             .slice(0, 5)
             .map(simplifyMeal);
         const firstFiveExpectedMeals = expectedPlan.flatMap(dayPlan => dayPlan.meals)
@@ -36,11 +36,11 @@ describe("generateMealPlan", () => {
 
     it(`should include "Spaghetti bolognese" as breakfast on Tuesday for template "standard"`, () => {
         const plan = generateMealPlan(mockProducts, mockRecipes, "standard");
-        const tuesdayPlan = plan.find(dayPlan => dayPlan.day === "Tuesday");
+        const tuesdayPlan = plan.find(dayPlan => dayPlan.date === "Tuesday");
         expect(tuesdayPlan).toBeDefined();
 
-        const breakfast = tuesdayPlan?.meals.find(meal => meal.type === "Breakfast");
-        expect(breakfast?.recipe).toBe("Spaghetti bolognese");
+        const breakfast = tuesdayPlan?.mealSlots.find(meal => meal.label === "Breakfast");
+        expect(breakfast?.recipeName).toBe("Spaghetti bolognese");
     })
 });
 
@@ -51,13 +51,13 @@ describe("generateMealPlan - template structure", () => {
 
             expect(plan).toHaveLength(Object.keys(template).length);
 
-            const daysFromPlan = plan.map(day => day.day);
+            const daysFromPlan = plan.map(day => day.date);
             const expectedDays = Object.keys(template);
             expect(daysFromPlan).toEqual(expectedDays);
 
             plan.forEach(dayPlan => {
-                const expectedMeals = template[dayPlan.day as keyof typeof template];
-                const actualMeals = dayPlan.meals.map(m => m.type);
+                const expectedMeals = template[dayPlan.date as keyof typeof template];
+                const actualMeals = dayPlan.mealSlots.map(m => m.label);
                 expect(actualMeals).toEqual(expectedMeals);
             });
         });

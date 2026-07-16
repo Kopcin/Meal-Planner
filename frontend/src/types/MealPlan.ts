@@ -1,36 +1,36 @@
 import { Product } from "./Product";
 
 export type Meal = {
-  type: string;
-  recipe: string;
+  label: string;
+  recipeName: string;
   recipeId: number;
   availableIngredients: Product[];
   missingIngredients: string[];
 };
 
 export type DayPlan = {
-  day: string;
-  meals: Meal[];
+  date: string;
+  mealSlots: Meal[];
 };
 
-export type MealPlanSaveRequest = {
+export type MealPlanRequest = {
   name: string;
   startDate: string;
   dayPlans: {
     date: string;
     mealSlots: {
-      name: string;
+      label: string;
       recipeId: number;
     }[];
   }[];
 };
 
-export type MealPlanSummary = {
+export type MealPlanSummaryResponse = {
   id: number;
   name: string;
 };
 
-export type SavedMealPlan = {
+export type MealPlanResponse = {
   id: number;
   name: string;
   startDate: string;

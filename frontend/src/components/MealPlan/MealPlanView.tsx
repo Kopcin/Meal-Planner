@@ -12,27 +12,27 @@ export default function MealPlanView({ mealPlan }: Props) {
       {mealPlan.map((dayPlan, index) => (
         <article key={index} className={styles.dayCard}>
           <header className={styles.dayHeader}>
-            <h2 className={styles.dayTitle}>{dayPlan.day}</h2>
+            <h2 className={styles.dayTitle}>{dayPlan.date}</h2>
             <span className={styles.dayBadge}>
-              {dayPlan.meals.length} meals
+              {dayPlan.mealSlots.length} meals
             </span>
           </header>
 
           <div className={styles.mealsList}>
-            {dayPlan.meals.map((meal, mealIndex) => (
+            {dayPlan.mealSlots.map((meal, mealIndex) => (
               <div key={mealIndex} className={styles.mealCard}>
                 <div className={styles.mealTopRow}>
                   <h3 className={styles.mealTitle}>
-                    <span className={styles.mealType}>{meal.type}</span>
-                    <span className={styles.mealRecipe}>{meal.recipe}</span>
+                    <span className={styles.mealType}>{meal.label}</span>
+                    <span className={styles.mealRecipe}>{meal.recipeName}</span>
                   </h3>
                 </div>
 
                 <div className={styles.infoBlock}>
                   <p className={styles.infoLabel}>Available ingredients</p>
                   <div className={styles.tagWrap}>
-                    {meal.availableIngredients.length > 0 ? (
-                      meal.availableIngredients.map((product, idx) => (
+                    {(meal.availableIngredients ?? []).length > 0 ? (
+                      (meal.availableIngredients ?? []).map((product, idx) => (
                         <span key={idx} className={styles.availableTag}>
                           {product.name}
                           <span className={styles.tagMeta}>
@@ -51,8 +51,8 @@ export default function MealPlanView({ mealPlan }: Props) {
                 <div className={styles.infoBlock}>
                   <p className={styles.infoLabel}>Missing ingredients</p>
                   <div className={styles.tagWrap}>
-                    {meal.missingIngredients.length > 0 ? (
-                      meal.missingIngredients.map((ingredient, idx) => (
+                    {(meal.missingIngredients ?? []).length > 0 ? (
+                      (meal.missingIngredients ?? []).map((ingredient, idx) => (
                         <span key={idx} className={styles.missingTag}>
                           {ingredient}
                         </span>

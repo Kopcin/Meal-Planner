@@ -1,14 +1,14 @@
 import {
-  MealPlanSaveRequest,
-  MealPlanSummary,
-  SavedMealPlan,
+  MealPlanRequest,
+  MealPlanSummaryResponse,
+  MealPlanResponse,
 } from "@/types/MealPlan";
 
 const API_URL = "http://localhost:8080/api/meal-plans";
 
 export async function saveMealPlan(
-  payload: MealPlanSaveRequest,
-): Promise<SavedMealPlan> {
+  payload: MealPlanRequest,
+): Promise<MealPlanResponse> {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -25,7 +25,7 @@ export async function saveMealPlan(
   return response.json();
 }
 
-export async function getMealPlans(): Promise<MealPlanSummary[]> {
+export async function getMealPlans(): Promise<MealPlanSummaryResponse[]> {
   const response = await fetch(API_URL);
 
   if (!response.ok) {
@@ -35,7 +35,7 @@ export async function getMealPlans(): Promise<MealPlanSummary[]> {
   return response.json();
 }
 
-export async function getMealPlan(id: number): Promise<SavedMealPlan> {
+export async function getMealPlan(id: number): Promise<MealPlanResponse> {
   const response = await fetch(`${API_URL}/${id}`);
 
   if (!response.ok) {

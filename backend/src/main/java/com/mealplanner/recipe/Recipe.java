@@ -26,7 +26,6 @@ public class Recipe {
     private String description;
 
     // Store the selected existing products
-
     @ManyToMany
     @JoinTable(name = "recipe_product",
             joinColumns = @JoinColumn(name = "recipe_id"),

@@ -1,6 +1,5 @@
 package com.mealplanner.mealplan.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +18,6 @@ public class DayPlan {
 
     private LocalDate date;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private MealPlan mealPlan;
 
