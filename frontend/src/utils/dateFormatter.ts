@@ -9,7 +9,7 @@ export const getTime = (date?: Date | number[]): number => {
   return 0;
 };
 
-export function formatExpirationDateString(
+export function formatDateString(
   date: string | Date | number[] | undefined
 ): string {
   if (!date) {

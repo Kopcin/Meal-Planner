@@ -16,6 +16,7 @@ export function generateMealPlan(
   recipes: Recipe[],
   numDays: number = 7,
   mealsPerDay: number = 3,
+  startDate: string = new Date().toISOString().split("T")[0],
 ) {
   const template = mealTemplates.default;
   const mealsForDay = template.allowedMeals.slice(0, mealsPerDay);
@@ -32,8 +33,13 @@ export function generateMealPlan(
   logInBrowser("Sorted products by expiration date:", sortedProducts);
 
   for (let i = 0; i < numDays; i++) {
-    const dayName = `Day ${i + 1}`;
-    const dayPlan: DayPlan = { date: dayName, mealSlots: [] };
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + i);
+
+    const dayPlan: DayPlan = {
+      date: date.toISOString().split("T")[0],
+      mealSlots: [],
+    };
 
     for (const mealType of mealsForDay) {
       if (usedRecipes.size === recipes.length) usedRecipes.clear();

@@ -1,21 +1,35 @@
 import styles from "./MealPlanControls.module.css";
 
 type Props = {
+  mealPlanName: string;
   numDays: number;
   mealsPerDay: number;
+  setMealPlanName: (value: string) => void;
   setNumDays: (value: number) => void;
   setMealsPerDay: (value: number) => void;
 };
 
 export default function MealPlanControls({
+  mealPlanName,
   numDays,
   mealsPerDay,
+  setMealPlanName,
   setNumDays,
   setMealsPerDay,
 }: Props) {
   return (
     <section className={styles.controlsCard}>
       <div className={styles.controlsGrid}>
+        <label className={styles.control}>
+          <span>Meal Plan Name</span>
+          <input
+            className={styles.input}
+            type="text"
+            value={mealPlanName}
+            onChange={(e) => setMealPlanName(e.target.value)}
+          />
+        </label>
+
         <label className={styles.control}>
           <span>Number of Days</span>
 

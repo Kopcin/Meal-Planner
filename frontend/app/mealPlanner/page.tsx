@@ -4,11 +4,7 @@ import Navbar from "@/components/Navbar";
 import MealPlanHeader from "@/components/MealPlan/MealPlanHeader";
 import MealPlanControls from "@/components/MealPlan/MealPlanControls";
 import MealPlanView from "@/components/MealPlan/MealPlanView";
-import {
-  DayPlan,
-  MealPlanSummaryResponse,
-  MealPlanResponse,
-} from "@/types/MealPlan";
+import { DayPlan, MealPlanSummaryResponse } from "@/types/MealPlan";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
@@ -19,6 +15,7 @@ import {
 } from "@/services/mealPlanner/mealPlanApi";
 import styles from "./mealPlannerPage.module.css";
 import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
+import { calculateShoppingList } from "@/services/mealPlanner/calculateShoppingList";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -32,6 +29,7 @@ export default function MealPlanPage() {
   const [numDays, setNumDays] = useState(7);
   const [mealsPerDay, setMealsPerDay] = useState(3);
   const [mealPlan, setMealPlan] = useState<DayPlan[]>([]);
+  const [mealPlanName, setMealPlanName] = useState<string>("My Meal Plan");
   const [shoppingList, setShoppingList] = useState<string[]>([]);
 
   const [savedPlans, setSavedPlans] = useState<MealPlanSummaryResponse[]>([]);
@@ -69,13 +67,9 @@ export default function MealPlanPage() {
 
   const handleGenerateMealPlan = () => {
     const plan = generateMealPlan(products, recipes, numDays, mealsPerDay);
+
     setMealPlan(plan);
-
-    const allMissingIngredients = plan
-      .flatMap((day) => day.mealSlots)
-      .flatMap((meal) => meal.missingIngredients);
-
-    setShoppingList([...new Set(allMissingIngredients)]);
+    setShoppingList(calculateShoppingList(plan));
   };
 
   const handleSaveMealPlan = async () => {
@@ -87,7 +81,7 @@ export default function MealPlanPage() {
     const startDateString = startDate.toISOString().split("T")[0];
 
     const payload = {
-      name: "My meal plan",
+      name: mealPlanName,
       startDate: startDateString,
       dayPlans: mealPlan.map((day, index) => {
         const date = new Date(startDate);
@@ -111,6 +105,19 @@ export default function MealPlanPage() {
       console.log("Saved meal plan:", savedPlan);
 
       await loadMealPlans();
+
+      setMealPlan([]);
+      setShoppingList([]);
+
+      const enrichedPlan = enrichMealPlan(
+        savedPlan.dayPlans,
+        recipes,
+        products,
+      );
+
+      setOpenedPlanId(savedPlan.id);
+      setOpenedPlan(enrichedPlan);
+      setShoppingList(calculateShoppingList(enrichedPlan));
 
       alert("Meal plan saved!");
     } catch (error) {
@@ -146,6 +153,7 @@ export default function MealPlanPage() {
 
       setOpenedPlanId(planId);
       setOpenedPlan(enrichedPlan);
+      setShoppingList(calculateShoppingList(enrichedPlan));
     } catch (error) {
       console.error(`Failed to open meal plan ${planId}:`, error);
     }
@@ -163,8 +171,10 @@ export default function MealPlanPage() {
         />
 
         <MealPlanControls
+          mealPlanName={mealPlanName}
           numDays={numDays}
           mealsPerDay={mealsPerDay}
+          setMealPlanName={setMealPlanName}
           setNumDays={setNumDays}
           setMealsPerDay={setMealsPerDay}
         />

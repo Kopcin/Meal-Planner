@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types/Product";
-import { formatExpirationDateString } from "@/utils/dateFormatter";
+import { formatDateString } from "@/utils/dateFormatter";
 import Image from "next/image";
 
 interface ProductCardProps {
@@ -48,7 +48,7 @@ export default function ProductCard({
           {product.description}
         </p>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          {formatExpirationDateString(product.expirationDate)}
+          {formatDateString(product.expirationDate)}
         </p>
         <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
           {product.price ? `${product.price} zł` : "Brak ceny"}

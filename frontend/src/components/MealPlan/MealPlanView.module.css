@@ -127,6 +127,12 @@
   color: #111827;
 }
 
+.dayDate {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-left: 8px;
+}
+
 .dayBadge {
   display: inline-flex;
   align-items: center;

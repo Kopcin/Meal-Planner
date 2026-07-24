@@ -1,6 +1,6 @@
 import { DayPlan } from "@/types/MealPlan";
 import styles from "./MealPlanView.module.css";
-import { formatExpirationDateString } from "@/utils/dateFormatter";
+import { formatDateString } from "@/utils/dateFormatter";
 
 type Props = {
   mealPlan: DayPlan[];
@@ -12,7 +12,14 @@ export default function MealPlanView({ mealPlan }: Props) {
       {mealPlan.map((dayPlan, index) => (
         <article key={index} className={styles.dayCard}>
           <header className={styles.dayHeader}>
-            <h2 className={styles.dayTitle}>{dayPlan.date}</h2>
+            <h2 className={styles.dayTitle}>
+              Day {index + 1}
+              <span className={styles.dayDate}>
+                {" "}
+                {formatDateString(dayPlan.date)}
+              </span>
+            </h2>
+
             <span className={styles.dayBadge}>
               {dayPlan.mealSlots.length} meals
             </span>
@@ -37,8 +44,7 @@ export default function MealPlanView({ mealPlan }: Props) {
                           {product.name}
                           <span className={styles.tagMeta}>
                             {" "}
-                            ·{" "}
-                            {formatExpirationDateString(product.expirationDate)}
+                            · {formatDateString(product.expirationDate)}
                           </span>
                         </span>
                       ))
