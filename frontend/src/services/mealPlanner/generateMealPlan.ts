@@ -17,13 +17,13 @@ export function generateMealPlan(
   numDays: number = 7,
   mealsPerDay: number = 3,
   startDate: string = new Date().toISOString().split("T")[0],
-) {
+): DayPlan[] {
   const template = mealTemplates.default;
   const mealsForDay = template.allowedMeals.slice(0, mealsPerDay);
   const mealPlan: DayPlan[] = [];
 
-  let usedRecipes = new Set<string>();
-  let usedProducts = new Set<string>();
+  const usedRecipes = new Set<string>();
+  const usedProducts = new Set<string>();
   let randomStartIndex = Math.floor(Math.random() * recipes.length);
 
   const sortedProducts = products
@@ -71,8 +71,8 @@ export function generateMealPlan(
 
         let expirationScore = 0;
 
-        availableIngredients.forEach((ing) => {
-          const expirationTime = getTime(ing.expirationDate);
+        availableIngredients.forEach((ingredient) => {
+          const expirationTime = getTime(ingredient.expirationDate);
           const daysUntilExpiration = Math.floor(
             (expirationTime - Date.now()) / (1000 * 60 * 60 * 24),
           ); // ms -> days
@@ -84,7 +84,7 @@ export function generateMealPlan(
           expirationScore += Math.max(0, -daysUntilExpiration + 100);
 
           logInBrowser(
-            `Ingredient: ${ing.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`,
+            `Ingredient: ${ingredient.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`,
           );
         });
 
@@ -106,11 +106,6 @@ export function generateMealPlan(
             label: mealType,
             recipeName: recipe.title,
             recipeId: recipe.id,
-            availableIngredients,
-            missingIngredients: [
-              ...missingIngredients,
-              ...missingUnassignedProducts,
-            ],
           };
         }
       }
@@ -119,9 +114,19 @@ export function generateMealPlan(
         dayPlan.mealSlots.push(bestRecipe);
         usedRecipes.add(bestRecipe.recipeName);
 
-        bestRecipe.availableIngredients.forEach((ingredient) =>
-          usedProducts.add(ingredient.name),
-        );
+        const recipe = recipes.find((r) => r.id === bestRecipe!.recipeId);
+
+        if (recipe) {
+          const { availableIngredients } = calculateMealIngredients(
+            recipe,
+            sortedProducts,
+            usedProducts,
+          );
+
+          availableIngredients.forEach((ingredient) =>
+            usedProducts.add(ingredient.name),
+          );
+        }
       }
     }
 

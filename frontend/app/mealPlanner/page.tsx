@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import MealPlanHeader from "@/components/MealPlan/MealPlanHeader";
 import MealPlanControls from "@/components/MealPlan/MealPlanControls";
 import MealPlanView from "@/components/MealPlan/MealPlanView";
-import { DayPlan, MealPlanSummaryResponse } from "@/types/MealPlan";
+import { DayPlanViewModel, MealPlanSummaryResponse } from "@/types/MealPlan";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
 import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
@@ -28,13 +28,13 @@ export default function MealPlanPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [numDays, setNumDays] = useState(7);
   const [mealsPerDay, setMealsPerDay] = useState(3);
-  const [mealPlan, setMealPlan] = useState<DayPlan[]>([]);
+  const [mealPlan, setMealPlan] = useState<DayPlanViewModel[]>([]);
   const [mealPlanName, setMealPlanName] = useState<string>("My Meal Plan");
   const [shoppingList, setShoppingList] = useState<string[]>([]);
 
   const [savedPlans, setSavedPlans] = useState<MealPlanSummaryResponse[]>([]);
   const [openedPlanId, setOpenedPlanId] = useState<number | null>(null);
-  const [openedPlan, setOpenedPlan] = useState<DayPlan[] | null>(null);
+  const [openedPlan, setOpenedPlan] = useState<DayPlanViewModel[] | null>(null);
 
   const hasMealPlan = mealPlan.length > 0;
 
@@ -68,8 +68,10 @@ export default function MealPlanPage() {
   const handleGenerateMealPlan = () => {
     const plan = generateMealPlan(products, recipes, numDays, mealsPerDay);
 
-    setMealPlan(plan);
-    setShoppingList(calculateShoppingList(plan));
+    const enrichedPlan = enrichMealPlan(plan, recipes, products);
+
+    setMealPlan(enrichedPlan);
+    setShoppingList(calculateShoppingList(enrichedPlan));
   };
 
   const handleSaveMealPlan = async () => {
@@ -159,6 +161,24 @@ export default function MealPlanPage() {
     }
   };
 
+  const handleMoveMeal = (
+    fromDayIndex: number,
+    fromMealIndex: number,
+    toDayIndex: number,
+    toMealIndex: number,
+  ) => {
+    const updatedMealPlan = structuredClone(mealPlan);
+    const [movedMeal] = updatedMealPlan[fromDayIndex].mealSlots.splice(
+      fromMealIndex,
+      1,
+    );
+    updatedMealPlan[toDayIndex].mealSlots.splice(toMealIndex, 0, movedMeal);
+    const enrichedPlan = enrichMealPlan(updatedMealPlan, recipes, products);
+
+    setMealPlan(enrichedPlan);
+    setShoppingList(calculateShoppingList(enrichedPlan));
+  };
+
   return (
     <div className={styles.page}>
       <Navbar />
@@ -187,7 +207,10 @@ export default function MealPlanPage() {
             </p>
           </section>
         ) : (
-          <MealPlanView mealPlan={mealPlan} />
+          <MealPlanView
+            mealPlan={mealPlan}
+            onMoveMeal={handleMoveMeal}
+          />
         )}
 
         <section className={styles.savedPlansContainer}>
@@ -199,7 +222,10 @@ export default function MealPlanPage() {
               </button>
 
               {openedPlanId === plan.id && openedPlan && (
-                <MealPlanView mealPlan={openedPlan} />
+                <MealPlanView
+                  mealPlan={openedPlan}
+                  onMoveMeal={handleMoveMeal}
+                />
               )}
             </div>
           ))}

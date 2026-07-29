@@ -4,13 +4,21 @@ export type Meal = {
   label: string;
   recipeName: string;
   recipeId: number;
-  availableIngredients: Product[];
-  missingIngredients: string[];
 };
 
 export type DayPlan = {
   date: string;
   mealSlots: Meal[];
+};
+
+export type MealViewModel = Meal & {
+  availableIngredients: Product[];
+  missingIngredients: string[];
+};
+
+export type DayPlanViewModel = {
+  date: string;
+  mealSlots: MealViewModel[];
 };
 
 export type MealPlanRequest = {

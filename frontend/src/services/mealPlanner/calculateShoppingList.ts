@@ -1,6 +1,6 @@
-import { DayPlan } from "@/types/MealPlan";
+import { DayPlanViewModel } from "@/types/MealPlan";
 
-export function calculateShoppingList(mealPlan: DayPlan[]): string[] {
+export function calculateShoppingList(mealPlan: DayPlanViewModel[]): string[] {
   return [
     ...new Set(
       mealPlan
