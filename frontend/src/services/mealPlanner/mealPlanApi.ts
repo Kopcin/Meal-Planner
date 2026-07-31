@@ -8,9 +8,11 @@ const API_URL = "http://localhost:8080/api/meal-plans";
 
 export async function saveMealPlan(
   payload: MealPlanRequest,
+  id?: number,
 ): Promise<MealPlanResponse> {
-  const response = await fetch(API_URL, {
-    method: "POST",
+  const url = id ? `${API_URL}/${id}` : API_URL;
+  const response = await fetch(url, {
+    method: id ? "PUT" : "POST",
     headers: {
       "Content-Type": "application/json",
     },
@@ -19,7 +21,9 @@ export async function saveMealPlan(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Failed to save meal plan: ${response.status} ${errorText}`);
+    throw new Error(
+      `Failed to save meal plan: ${response.status} ${errorText}`,
+    );
   }
 
   return response.json();

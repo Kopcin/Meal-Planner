@@ -20,35 +20,7 @@ public class MealPlanService {
     private final RecipeRepository recipeRepository;
 
     public MealPlanResponse create(MealPlanRequest request) {
-
-        MealPlan plan = new MealPlan();
-
-        plan.setName(request.name());
-        plan.setStartDate(request.startDate());
-
-        for (DayPlanRequest dayRequest : request.dayPlans()) {
-
-            DayPlan day = new DayPlan();
-            day.setDate(dayRequest.date());
-
-            for (MealSlotRequest mealRequest : dayRequest.mealSlots()) {
-
-                MealSlot meal = new MealSlot();
-                meal.setLabel(mealRequest.label());
-
-                if (mealRequest.recipeId() != null) {
-                    Recipe recipe = recipeRepository
-                            .findById(mealRequest.recipeId())
-                            .orElseThrow();
-
-                    meal.setRecipe(recipe);
-                }
-
-                day.addMealSlot(meal);
-            }
-
-            plan.addDayPlan(day);
-        }
+        MealPlan plan = buildMealPlan(new MealPlan(), request);
 
         MealPlan savedPlan = mealPlanRepository.save(plan);
 
@@ -69,5 +41,49 @@ public class MealPlanService {
                 .stream()
                 .map(mealPlanMapper::toSummary)
                 .toList();
+    }
+
+    public MealPlanResponse update(Long id, MealPlanRequest request) {
+        MealPlan plan = mealPlanRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));
+
+        plan.getDayPlans().clear();
+
+        MealPlan updatedPlan = buildMealPlan(plan, request);
+
+        MealPlan savedPlan = mealPlanRepository.save(updatedPlan);
+
+        return mealPlanMapper.toResponse(savedPlan);
+    }
+
+    private MealPlan buildMealPlan(MealPlan plan, MealPlanRequest request) {
+
+        plan.setName(request.name());
+        plan.setStartDate(request.startDate());
+
+        for (DayPlanRequest dayRequest : request.dayPlans()) {
+
+            DayPlan day = new DayPlan();
+            day.setDate(dayRequest.date());
+
+            for (MealSlotRequest mealRequest : dayRequest.mealSlots()) {
+
+                MealSlot meal = new MealSlot();
+                meal.setLabel(mealRequest.label());
+
+                if (mealRequest.recipeId() != null) {
+                    Recipe recipe = recipeRepository
+                            .findById(mealRequest.recipeId())
+                            .orElseThrow(() ->
+                                    new EntityNotFoundException("Recipe not found")
+                            );
+                    meal.setRecipe(recipe);
+                }
+                day.addMealSlot(meal);
+            }
+            plan.addDayPlan(day);
+        }
+
+        return plan;
     }
 }

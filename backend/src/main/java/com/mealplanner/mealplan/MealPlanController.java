@@ -29,4 +29,9 @@ public class MealPlanController {
     public MealPlanResponse create(@RequestBody MealPlanRequest request) {
         return service.create(request);
     }
+
+    @PutMapping("/{id}")
+    public MealPlanResponse update(@PathVariable Long id, @RequestBody MealPlanRequest request) {
+        return service.update(id, request);
+    }
 }

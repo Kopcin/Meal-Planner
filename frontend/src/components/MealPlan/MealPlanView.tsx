@@ -10,17 +10,23 @@ type Props = {
     toDayIndex: number,
     toMealIndex: number,
   ) => void;
+  onStartEditing?: () => void;
+  changedMeals: Set<string>;
 };
 
 export default function MealPlanView({
   mealPlan,
   onMoveMeal,
+  onStartEditing,
+  changedMeals,
 }: Props) {
   const handleDragStart = (
     event: React.DragEvent<HTMLDivElement>,
     dayIndex: number,
     mealIndex: number,
   ) => {
+    onStartEditing?.();
+
     event.dataTransfer.setData(
       "application/json",
       JSON.stringify({ dayIndex, mealIndex }),
@@ -69,8 +75,8 @@ export default function MealPlanView({
           <div className={styles.mealsList}>
             {dayPlan.mealSlots.map((meal, mealIndex) => (
               <div
-                key={mealIndex}
-                className={styles.mealCard}
+                key={meal.recipeId}
+                className={`${styles.mealCard} ${changedMeals.has(`${dayIndex}-${mealIndex}`) ? styles.changedMeal : ""}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, dayIndex, mealIndex)}
                 onDrop={(e) => handleDrop(e, dayIndex, mealIndex)}

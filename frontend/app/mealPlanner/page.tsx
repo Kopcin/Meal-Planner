@@ -31,10 +31,10 @@ export default function MealPlanPage() {
   const [mealPlan, setMealPlan] = useState<DayPlanViewModel[]>([]);
   const [mealPlanName, setMealPlanName] = useState<string>("My Meal Plan");
   const [shoppingList, setShoppingList] = useState<string[]>([]);
-
   const [savedPlans, setSavedPlans] = useState<MealPlanSummaryResponse[]>([]);
   const [openedPlanId, setOpenedPlanId] = useState<number | null>(null);
-  const [openedPlan, setOpenedPlan] = useState<DayPlanViewModel[] | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [changedMeals, setChangedMeals] = useState<Set<string>>(new Set());
 
   const hasMealPlan = mealPlan.length > 0;
 
@@ -72,6 +72,10 @@ export default function MealPlanPage() {
 
     setMealPlan(enrichedPlan);
     setShoppingList(calculateShoppingList(enrichedPlan));
+
+    setOpenedPlanId(null);
+    setHasUnsavedChanges(false);
+    setChangedMeals(new Set());
   };
 
   const handleSaveMealPlan = async () => {
@@ -102,14 +106,11 @@ export default function MealPlanPage() {
     console.log("Saving meal plan:", payload);
 
     try {
-      const savedPlan = await saveMealPlan(payload);
+      const savedPlan = await saveMealPlan(payload, openedPlanId ?? undefined);
 
       console.log("Saved meal plan:", savedPlan);
 
       await loadMealPlans();
-
-      setMealPlan([]);
-      setShoppingList([]);
 
       const enrichedPlan = enrichMealPlan(
         savedPlan.dayPlans,
@@ -117,9 +118,11 @@ export default function MealPlanPage() {
         products,
       );
 
+      setMealPlan(enrichedPlan);
       setOpenedPlanId(savedPlan.id);
-      setOpenedPlan(enrichedPlan);
       setShoppingList(calculateShoppingList(enrichedPlan));
+      setHasUnsavedChanges(false);
+      setChangedMeals(new Set());
 
       alert("Meal plan saved!");
     } catch (error) {
@@ -144,7 +147,10 @@ export default function MealPlanPage() {
   const handleOpenMealPlan = async (planId: number) => {
     if (openedPlanId === planId) {
       setOpenedPlanId(null);
-      setOpenedPlan(null);
+      setMealPlan([]);
+      setShoppingList([]);
+      setHasUnsavedChanges(false);
+      setChangedMeals(new Set());
       return;
     }
 
@@ -153,9 +159,11 @@ export default function MealPlanPage() {
 
       const enrichedPlan = enrichMealPlan(plan.dayPlans, recipes, products);
 
+      setMealPlan(enrichedPlan);
       setOpenedPlanId(planId);
-      setOpenedPlan(enrichedPlan);
       setShoppingList(calculateShoppingList(enrichedPlan));
+      setHasUnsavedChanges(false);
+      setChangedMeals(new Set());
     } catch (error) {
       console.error(`Failed to open meal plan ${planId}:`, error);
     }
@@ -177,6 +185,19 @@ export default function MealPlanPage() {
 
     setMealPlan(enrichedPlan);
     setShoppingList(calculateShoppingList(enrichedPlan));
+
+    if (openedPlanId !== null) {
+      setHasUnsavedChanges(true);
+    }
+
+    setChangedMeals((prev) => {
+      const next = new Set(prev);
+
+      next.add(`${fromDayIndex}-${fromMealIndex}`);
+      next.add(`${toDayIndex}-${toMealIndex}`);
+
+      return next;
+    });
   };
 
   return (
@@ -199,18 +220,8 @@ export default function MealPlanPage() {
           setMealsPerDay={setMealsPerDay}
         />
 
-        {!hasMealPlan ? (
-          <section className={styles.emptyState}>
-            <p>
-              No meal plan generated yet. Select options and click the button
-              above.
-            </p>
-          </section>
-        ) : (
-          <MealPlanView
-            mealPlan={mealPlan}
-            onMoveMeal={handleMoveMeal}
-          />
+        {hasMealPlan && (
+          <MealPlanView mealPlan={mealPlan} onMoveMeal={handleMoveMeal} changedMeals={changedMeals} />
         )}
 
         <section className={styles.savedPlansContainer}>
@@ -218,15 +229,8 @@ export default function MealPlanPage() {
           {savedPlans.map((plan) => (
             <div key={plan.id} className={styles.savedPlanItem}>
               <button onClick={() => handleOpenMealPlan(plan.id)}>
-                {openedPlanId === plan.id ? "▼" : "▶"} {plan.name}
+                {openedPlanId === plan.id ? "✎" : "○"} {plan.name}
               </button>
-
-              {openedPlanId === plan.id && openedPlan && (
-                <MealPlanView
-                  mealPlan={openedPlan}
-                  onMoveMeal={handleMoveMeal}
-                />
-              )}
             </div>
           ))}
         </section>

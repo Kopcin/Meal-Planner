@@ -49,7 +49,9 @@
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .generateButton:hover {
@@ -267,4 +269,9 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.changedMeal {
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
 }
