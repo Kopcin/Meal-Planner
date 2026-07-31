@@ -1,23 +1,32 @@
+"use client";
+
 import { DayPlanViewModel } from "@/types/MealPlan";
 import styles from "./MealPlanView.module.css";
 import { formatDateString } from "@/utils/dateFormatter";
 
 type Props = {
   mealPlan: DayPlanViewModel[];
+
   onMoveMeal: (
     fromDayIndex: number,
     fromMealIndex: number,
     toDayIndex: number,
     toMealIndex: number,
   ) => void;
-  onStartEditing?: () => void;
+
+  onChangeRecipe: (
+    dayIndex: number,
+    mealIndex: number,
+    newRecipeId: number,
+  ) => void;
+
   changedMeals: Set<string>;
 };
 
 export default function MealPlanView({
   mealPlan,
   onMoveMeal,
-  onStartEditing,
+  onChangeRecipe,
   changedMeals,
 }: Props) {
   const handleDragStart = (
@@ -25,8 +34,6 @@ export default function MealPlanView({
     dayIndex: number,
     mealIndex: number,
   ) => {
-    onStartEditing?.();
-
     event.dataTransfer.setData(
       "application/json",
       JSON.stringify({ dayIndex, mealIndex }),
@@ -54,6 +61,20 @@ export default function MealPlanView({
     event.preventDefault();
   };
 
+  const handleRecipeDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    dayIndex: number,
+    mealIndex: number,
+  ) => {
+    event.preventDefault();
+
+    const recipeId = event.dataTransfer.getData("recipeId");
+
+    if (!recipeId) return;
+
+    onChangeRecipe(dayIndex, mealIndex, Number(recipeId));
+  };
+
   return (
     <section className={styles.planGrid}>
       {mealPlan.map((dayPlan, dayIndex) => (
@@ -75,11 +96,14 @@ export default function MealPlanView({
           <div className={styles.mealsList}>
             {dayPlan.mealSlots.map((meal, mealIndex) => (
               <div
-                key={meal.recipeId}
+                key={mealIndex}
                 className={`${styles.mealCard} ${changedMeals.has(`${dayIndex}-${mealIndex}`) ? styles.changedMeal : ""}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, dayIndex, mealIndex)}
-                onDrop={(e) => handleDrop(e, dayIndex, mealIndex)}
+                onDrop={(e) => {
+                  handleDrop(e, dayIndex, mealIndex);
+                  handleRecipeDrop(e, dayIndex, mealIndex);
+                }}
                 onDragOver={allowDrop}
               >
                 <div className={styles.mealTopRow}>

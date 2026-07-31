@@ -49,7 +49,9 @@
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .generateButton:hover {
@@ -261,4 +263,10 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.editorLayout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
 }

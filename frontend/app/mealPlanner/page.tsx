@@ -16,6 +16,7 @@ import {
 import styles from "./mealPlannerPage.module.css";
 import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
 import { calculateShoppingList } from "@/services/mealPlanner/calculateShoppingList";
+import RecipePicker from "@/components/Recipe/RecipePicker";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -200,6 +201,33 @@ export default function MealPlanPage() {
     });
   };
 
+  const handleChangeRecipe = (
+    dayIndex: number,
+    mealIndex: number,
+    recipeId: number,
+  ) => {
+    const updatedMealPlan = structuredClone(mealPlan);
+
+    updatedMealPlan[dayIndex].mealSlots[mealIndex].recipeId = recipeId;
+
+    const enrichedPlan = enrichMealPlan(updatedMealPlan, recipes, products);
+
+    setMealPlan(enrichedPlan);
+    setShoppingList(calculateShoppingList(enrichedPlan));
+
+    if (openedPlanId !== null) {
+      setHasUnsavedChanges(true);
+    }
+
+    setChangedMeals((prev) => {
+      const next = new Set(prev);
+
+      next.add(`${dayIndex}-${mealIndex}`);
+
+      return next;
+    });
+  };
+
   return (
     <div className={styles.page}>
       <Navbar />
@@ -221,7 +249,16 @@ export default function MealPlanPage() {
         />
 
         {hasMealPlan && (
-          <MealPlanView mealPlan={mealPlan} onMoveMeal={handleMoveMeal} changedMeals={changedMeals} />
+          <div className={styles.editorLayout}>
+            <RecipePicker recipes={recipes} products={products} />
+
+            <MealPlanView
+              mealPlan={mealPlan}
+              onMoveMeal={handleMoveMeal}
+              onChangeRecipe={handleChangeRecipe}
+              changedMeals={changedMeals}
+            />
+          </div>
         )}
 
         <section className={styles.savedPlansContainer}>
