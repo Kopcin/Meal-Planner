@@ -1,74 +1,98 @@
 "use client";
 
 import { Recipe } from "@/types/Recipe";
+import { Product } from "@/types/Product";
+import styles from "./RecipeCard.module.css";
 import Image from "next/image";
 
-interface RecipeCardProps {
+type RecipeCardProps = {
   recipe: Recipe;
   onClick?: () => void;
   isSelected?: boolean;
-}
+
+  availableIngredients?: Product[];
+  missingIngredients?: string[];
+
+  draggable?: boolean;
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void;
+};
 
 export default function RecipeCard({
   recipe,
   onClick,
   isSelected,
+  availableIngredients,
+  missingIngredients,
+  draggable,
+  onDragStart,
 }: RecipeCardProps) {
   const image = recipe.image || "/images/placeholderImg150x200.png";
 
+  const showAvailability =
+    availableIngredients !== undefined || missingIngredients !== undefined;
+
   return (
     <div
-      className={`recipe-card border rounded-lg shadow-md overflow-hidden bg-white dark:bg-gray-800 ${
-        isSelected ? "border-blue-500 scale-105 z-10" : ""
-      }`}
+      className={`${styles.recipeCard} ${isSelected ? styles.selected : ""}`}
       onClick={onClick}
-      style={{
-        cursor: onClick ? "pointer" : "default",
-        transition: "transform 0.2s ease-in-out",
-      }}
+      draggable={draggable}
+      onDragStart={onDragStart}
     >
       {recipe.image && (
-      <div className="image-wrapper">
-        <Image
-          src={image}
-          alt={recipe.title}
-          width={150}
-          height={200}
-          layout="responsive"
-          objectFit="cover"
-          priority
-          className="rounded-t-lg"
-        />
-      </div>
+        <div className={styles.imageWrapper}>
+          <Image
+            src={image}
+            alt={recipe.title}
+            width={150}
+            height={200}
+            layout="responsive"
+            objectFit="cover"
+            priority
+            className={styles.image}
+          />
+        </div>
       )}
-      <div className="p-4">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-          {recipe.title}
-        </h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          {recipe.description}
-        </p>
+      <div className={styles.content}>
+        <h2 className={styles.recipeTitle}>{recipe.title}</h2>
+        <p className={styles.description}>{recipe.description}</p>
 
-        <div className="mb-4">
-          <h3 className="text-md font-semibold text-gray-800 dark:text-white">
-            Ingredients:
-          </h3>
-          <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-            {recipe.databaseProducts?.map((product, index) => (
-              <li key={product.id || index}>
-                {product.name} (ID: {product.id})
-              </li>
-            )) || <li>No products in database.</li>}
-          </ul>
-        </div>
+        {showAvailability ? (
+          <div className={styles.ingredients}>
+            {availableIngredients?.map((ingredient) => (
+              <div key={ingredient.name} className={styles.available}>
+                ✅ {ingredient.name}
+              </div>
+            ))}
 
-        <div className="mb-4">
-          <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-            {recipe.unassignedProducts?.map((productName, index) => (
-              <li key={index}>{productName}</li>
-            )) || <li>Brak nowych produktów do przypisania.</li>}
-          </ul>
-        </div>
+            {missingIngredients?.map((ingredient) => (
+              <div key={ingredient} className={styles.missing}>
+                ❌ {ingredient}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className={styles.ingredientsSection}>
+              <h3 className={styles.ingredientsTitle}>Ingredients:</h3>
+
+              <ul className={styles.ingredientsList}>
+                {recipe.databaseProducts?.map((product, index) => (
+                  <li key={product.id || index}>
+                    {product.name} (ID: {product.id})
+                  </li>
+                )) || <li>No products in database.</li>}
+              </ul>
+            </div>
+
+            <div className={styles.ingredientsSection}>
+              <ul className={styles.ingredientsList}>
+                {recipe.unassignedProducts?.map((productName, index) => (
+                  <li key={index}>{productName}</li>
+                )) || <li>No new products to assign.</li>}
+              </ul>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

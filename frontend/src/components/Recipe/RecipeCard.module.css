@@ -1,0 +1,87 @@
+.recipeCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  color: #111827;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.recipeCard:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
+}
+
+.recipeCard[draggable="true"] {
+  cursor: grab;
+}
+
+.selected {
+  border-color: #2563eb;
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.imageWrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.content {
+  padding: 16px;
+}
+
+.recipeTitle {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.description {
+  margin: 0 0 16px;
+  color: #374151;
+}
+
+.ingredientsSection {
+  margin-bottom: 16px;
+}
+
+.ingredientsTitle {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ingredientsList {
+  margin: 0;
+  padding-left: 20px;
+  color: #374151;
+}
+
+.ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  font-size: 0.78rem;
+}
+
+.available {
+  color: #166534;
+}
+
+.missing {
+  color: #be123c;
+}

@@ -5,6 +5,7 @@ import styles from "./RecipePicker.module.css";
 import { Product } from "@/types/Product";
 import { useMemo } from "react";
 import { calculateMealIngredients } from "@/services/mealPlanner/calculateMealIngredients";
+import RecipeCard from "./RecipeCard";
 
 type Props = {
   recipes: Recipe[];
@@ -13,6 +14,7 @@ type Props = {
 
 export default function RecipePicker({ recipes, products }: Props) {
   const sortedRecipes = useMemo(() => {
+    
     return recipes
       .map((recipe) => {
         const {
@@ -57,28 +59,14 @@ export default function RecipePicker({ recipes, products }: Props) {
       <div className={styles.recipeList}>
         {sortedRecipes.map(
           ({ recipe, availableIngredients, missingIngredients }) => (
-            <div
+            <RecipeCard
               key={recipe.id}
-              className={styles.recipeCard}
+              recipe={recipe}
+              availableIngredients={availableIngredients}
+              missingIngredients={missingIngredients}
               draggable
-              onDragStart={(e) => handleDragStart(e, recipe.id)}
-            >
-              <div className={styles.recipeTitle}>{recipe.title}</div>
-
-              <div className={styles.ingredients}>
-                {availableIngredients.map((ingredient) => (
-                  <div key={ingredient.name} className={styles.available}>
-                    ✅ {ingredient.name}
-                  </div>
-                ))}
-
-                {missingIngredients.map((ingredient) => (
-                  <div key={ingredient} className={styles.missing}>
-                    ❌ {ingredient}
-                  </div>
-                ))}
-              </div>
-            </div>
+              onDragStart={(event) => handleDragStart(event, recipe.id)}
+            />  
           ),
         )}
       </div>
