@@ -15,6 +15,8 @@ type RecipeCardProps = {
 
   draggable?: boolean;
   onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void;
+
+  variant?: "default" | "picker";
 };
 
 export default function RecipeCard({
@@ -25,15 +27,20 @@ export default function RecipeCard({
   missingIngredients,
   draggable,
   onDragStart,
+  variant = "default",
 }: RecipeCardProps) {
   const image = recipe.image || "/images/placeholderImg150x200.png";
+
+  const isPicker = variant === "picker";
 
   const showAvailability =
     availableIngredients !== undefined || missingIngredients !== undefined;
 
   return (
     <div
-      className={`${styles.recipeCard} ${isSelected ? styles.selected : ""}`}
+      className={`${styles.recipeCard} ${
+        isPicker ? styles.pickerCard : ""
+      } ${isSelected ? styles.selected : ""}`}
       onClick={onClick}
       draggable={draggable}
       onDragStart={onDragStart}
@@ -54,10 +61,17 @@ export default function RecipeCard({
       )}
       <div className={styles.content}>
         <h2 className={styles.recipeTitle}>{recipe.title}</h2>
-        <p className={styles.description}>{recipe.description}</p>
+
+        {!isPicker && (
+          <p className={styles.description}>{recipe.description}</p>
+        )}
 
         {showAvailability ? (
           <div className={styles.ingredients}>
+            {!isPicker && (
+              <h3 className={styles.ingredientsTitle}>Ingredients:</h3>
+            )}
+
             {availableIngredients?.map((ingredient) => (
               <div key={ingredient.name} className={styles.available}>
                 ✅ {ingredient.name}
@@ -71,6 +85,7 @@ export default function RecipeCard({
             ))}
           </div>
         ) : (
+          !isPicker && (
           <>
             <div className={styles.ingredientsSection}>
               <h3 className={styles.ingredientsTitle}>Ingredients:</h3>
@@ -92,6 +107,7 @@ export default function RecipeCard({
               </ul>
             </div>
           </>
+          )
         )}
       </div>
     </div>

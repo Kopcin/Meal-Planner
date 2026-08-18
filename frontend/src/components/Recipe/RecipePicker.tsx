@@ -66,6 +66,7 @@ export default function RecipePicker({ recipes, products }: Props) {
               missingIngredients={missingIngredients}
               draggable
               onDragStart={(event) => handleDragStart(event, recipe.id)}
+              variant="picker"
             />  
           ),
         )}
