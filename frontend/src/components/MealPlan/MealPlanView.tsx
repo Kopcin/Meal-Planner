@@ -20,6 +20,10 @@ type Props = {
     newRecipeId: number,
   ) => void;
 
+  onAddMeal: (dayIndex: number) => void;
+
+  onAddDay: () => void;
+
   changedMeals: Set<string>;
 };
 
@@ -27,6 +31,8 @@ export default function MealPlanView({
   mealPlan,
   onMoveMeal,
   onChangeRecipe,
+  onAddMeal,
+  onAddDay,
   changedMeals,
 }: Props) {
   const handleDragStart = (
@@ -148,9 +154,20 @@ export default function MealPlanView({
                 </div>
               </div>
             ))}
+
+            <button
+              className={styles.addMealButton}
+              onClick={() => onAddMeal(dayIndex)}
+            >
+              + Add meal
+            </button>
           </div>
         </article>
       ))}
+
+      <button className={styles.addDayButton} onClick={onAddDay}>
+        + Add day
+      </button>
     </section>
   );
 }

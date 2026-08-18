@@ -4,6 +4,7 @@ import { Recipe } from "@/types/Recipe";
 import { getTime } from "@/utils/dateFormatter";
 import { logInBrowser } from "@/utils/logger";
 import { calculateMealIngredients } from "./calculateMealIngredients";
+import { scoreRecipe } from "./scoreRecipe";
 
 export const mealTemplates = {
   default: {
@@ -30,6 +31,14 @@ export function generateMealPlan(
     .filter((p) => p.expirationDate)
     .sort((a, b) => getTime(a.expirationDate) - getTime(b.expirationDate));
 
+  // const sortedProducts = [...products].sort((a, b) => {
+  //   if (!a.expirationDate && !b.expirationDate) return 0;
+  //   if (!a.expirationDate) return 1;
+  //   if (!b.expirationDate) return 1;
+
+  //   return getTime(a.expirationDate) - getTime(b.expirationDate);
+  // });
+
   logInBrowser("Sorted products by expiration date:", sortedProducts);
 
   for (let i = 0; i < numDays; i++) {
@@ -51,57 +60,25 @@ export function generateMealPlan(
       // for (const recipe of recipes) {
       for (let j = 0; j < recipes.length; j++) {
         const recipe = recipes[(randomStartIndex + j) % recipes.length];
+
         if (usedRecipes.has(recipe.title)) continue;
 
-        const {
-          availableIngredients,
-          missingIngredients,
-          missingUnassignedProducts,
-        } = calculateMealIngredients(recipe, sortedProducts, usedProducts);
+        const { score, availableIngredients, missingIngredients } = scoreRecipe(
+          recipe,
+          sortedProducts,
+          usedProducts,
+        );
 
         logInBrowser(
           `Day: ${i + 1}, Meal: ${mealType}, Checking recipe: ${recipe.title}`,
         );
         logInBrowser("Available ingredients:", availableIngredients);
-        logInBrowser(
-          "Missing ingredients:",
-          missingIngredients,
-          missingUnassignedProducts,
-        );
+        logInBrowser("Missing ingredients:", missingIngredients);
+        logInBrowser(`Recipe score: ${score}`);
 
-        let expirationScore = 0;
+        if (score > bestScore) {
+          bestScore = score;
 
-        availableIngredients.forEach((ingredient) => {
-          const expirationTime = getTime(ingredient.expirationDate);
-          const daysUntilExpiration = Math.floor(
-            (expirationTime - Date.now()) / (1000 * 60 * 60 * 24),
-          ); // ms -> days
-
-          // if (daysUntilExpiration <= 0) expirationScore += 100;
-          // else if (daysUntilExpiration <= 3) expirationScore += 30;
-          // else if (daysUntilExpiration <= 7) expirationScore += 15;
-          // else expirationScore += 5;
-          expirationScore += Math.max(0, -daysUntilExpiration + 100);
-
-          logInBrowser(
-            `Ingredient: ${ingredient.name}, Expiration in: ${daysUntilExpiration} days, Score contribution: ${expirationScore}`,
-          );
-        });
-
-        // Matching score based on available and missing ingredients
-        let matchingScore =
-          availableIngredients.length * 5 -
-          (missingIngredients.length + missingUnassignedProducts.length) * 5;
-        if (matchingScore < 0) matchingScore = 0;
-
-        const totalScore = expirationScore + matchingScore;
-
-        logInBrowser(
-          `Recipe: ${recipe.title}, expScore: ${expirationScore}, matchScore: ${matchingScore}, Score: ${totalScore}`,
-        );
-
-        if (totalScore > bestScore) {
-          bestScore = totalScore;
           bestRecipe = {
             label: mealType,
             recipeName: recipe.title,

@@ -17,6 +17,9 @@ import styles from "./mealPlannerPage.module.css";
 import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
 import { calculateShoppingList } from "@/services/mealPlanner/calculateShoppingList";
 import RecipePicker from "@/components/Recipe/RecipePicker";
+import { calculateMealIngredients } from "@/services/mealPlanner/calculateMealIngredients";
+import { getTime } from "@/utils/dateFormatter";
+import { scoreRecipe } from "@/services/mealPlanner/scoreRecipe";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -228,6 +231,115 @@ export default function MealPlanPage() {
     });
   };
 
+  const createNewMeal = (dayIndex: number) => {
+    const usedProducts = new Set<string>();
+    const usedRecipes = new Set<string>();
+
+    // Odtwórz stan produktów wykorzystanych przez posiłki,
+    // które już znajdują się w planie przed nowym mealem.
+    for (
+      let currentDayIndex = 0;
+      currentDayIndex <= dayIndex;
+      currentDayIndex++
+    ) {
+      const day = mealPlan[currentDayIndex];
+
+      for (const meal of day.mealSlots) {
+        const recipe = recipes.find((r) => r.id === meal.recipeId);
+
+        if (!recipe) {
+          continue;
+        }
+
+        const { availableIngredients } = calculateMealIngredients(
+          recipe,
+          products,
+          usedProducts,
+        );
+
+        availableIngredients.forEach((ingredient) => {
+          usedProducts.add(ingredient.name);
+        });
+
+        usedRecipes.add(recipe.title);
+      }
+    }
+
+    // Jeżeli wykorzystaliśmy już wszystkie przepisy,
+    // pozwól ponownie użyć dowolnego przepisu.
+    const availableRecipes =
+      usedRecipes.size === recipes.length
+        ? recipes
+        : recipes.filter((recipe) => !usedRecipes.has(recipe.title));
+
+    let bestRecipe: Recipe | null = null;
+    let bestScore = -Infinity;
+
+    for (const recipe of availableRecipes) {
+      const { score } = scoreRecipe(recipe, products, usedProducts);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestRecipe = recipe;
+      }
+    }
+
+    if (!bestRecipe) {
+      return null;
+    }
+
+    return {
+      label: "New Meal",
+      recipeId: bestRecipe.id,
+      recipeName: bestRecipe.title,
+      availableIngredients: [],
+      missingIngredients: [],
+    };
+  };
+
+  const handleAddMeal = (dayIndex: number) => {
+    const newMeal = createNewMeal(dayIndex);
+
+    if (!newMeal) {
+      return;
+    }
+
+    const updatedMealPlan = structuredClone(mealPlan);
+
+    updatedMealPlan[dayIndex].mealSlots.push(newMeal);
+
+    const enrichedPlan = enrichMealPlan(updatedMealPlan, recipes, products);
+
+    setMealPlan(enrichedPlan);
+    setShoppingList(calculateShoppingList(enrichedPlan));
+    setHasUnsavedChanges(true);
+
+    setChangedMeals((prev) => {
+      const next = new Set(prev);
+
+      next.add(`${dayIndex}-${enrichedPlan[dayIndex].mealSlots.length - 1}`);
+
+      return next;
+    });
+  };
+
+  const handleAddDay = () => {
+    const lastDay = mealPlan.at(-1);
+
+    const nextDate = lastDay ? new Date(lastDay.date) : new Date();
+
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    const newDay = {
+      date: nextDate.toISOString().split("T")[0],
+      mealSlots: [],
+    };
+
+    setMealPlan((prev) => [...prev, newDay]);
+
+    setHasUnsavedChanges(true);
+  };
+
   return (
     <div className={styles.page}>
       <Navbar />
@@ -256,6 +368,8 @@ export default function MealPlanPage() {
               mealPlan={mealPlan}
               onMoveMeal={handleMoveMeal}
               onChangeRecipe={handleChangeRecipe}
+              onAddMeal={handleAddMeal}
+              onAddDay={handleAddDay}
               changedMeals={changedMeals}
             />
           </div>
