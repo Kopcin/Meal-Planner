@@ -3,7 +3,7 @@ import path from "path"
 import { generateMealPlan } from "@/services/mealPlanner/generateMealPlan";
 import { mockProducts, mockRecipes } from "../src/data/mockData";
 
-const plan = generateMealPlan(mockProducts, mockRecipes, "standard");
+const plan = generateMealPlan(mockProducts, mockRecipes);
 
 const filePath = path.resolve(`src/fixtures/expectedStandardPlan.json`);
 
