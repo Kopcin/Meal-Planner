@@ -9,6 +9,7 @@ const navItems = [
   { href: "/fridge", label: "Fridge" },
   { href: "/recipes", label: "Recipes" },
   { href: "/mealPlanner", label: "Meal Planner" },
+  { href: "/login", label: "Login" },
 ];
 
 export default function Navbar() {
