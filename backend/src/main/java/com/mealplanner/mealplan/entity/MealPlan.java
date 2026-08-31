@@ -1,5 +1,6 @@
 package com.mealplanner.mealplan.entity;
 
+import com.mealplanner.auth.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,10 @@ public class MealPlan {
 
     @CreationTimestamp
     private LocalDateTime creationDate;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @OneToMany(
             mappedBy = "mealPlan",

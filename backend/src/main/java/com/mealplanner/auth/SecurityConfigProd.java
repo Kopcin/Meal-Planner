@@ -1,5 +1,6 @@
 package com.mealplanner.auth;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,5 +44,11 @@ public class SecurityConfigProd {
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @PostConstruct
+    public void test() {
+        System.out.println("!!! SECURITY PROD ACTIVE !!!");
+        System.out.println("!!! FILTER: " + jwtAuthenticationFilter);
     }
 }

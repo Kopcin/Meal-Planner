@@ -1,8 +1,10 @@
 package com.mealplanner.fridge;
 
+import com.mealplanner.auth.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -25,13 +27,14 @@ public class ProductController {
     }
 
     @GetMapping("/")
-    public Collection<Product> findProducts() {
-        return repository.findAll();
+    public Collection<Product> findProducts(@AuthenticationPrincipal User user) {
+        return repository.findByUserId(user.getId());
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public Product addProduct(@Valid @RequestBody Product product) {
+    public Product addProduct(@Valid @RequestBody Product product, @AuthenticationPrincipal User user) {
+        product.setUser(user);
         return repository.save(product);
     }
 

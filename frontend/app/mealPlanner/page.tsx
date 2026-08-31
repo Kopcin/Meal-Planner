@@ -18,8 +18,8 @@ import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
 import { calculateShoppingList } from "@/services/mealPlanner/calculateShoppingList";
 import RecipePicker from "@/components/Recipe/RecipePicker";
 import { calculateMealIngredients } from "@/services/mealPlanner/calculateMealIngredients";
-import { getTime } from "@/utils/dateFormatter";
 import { scoreRecipe } from "@/services/mealPlanner/scoreRecipe";
+import Cookies from "js-cookie";
 
 // Offline mode handling:
 // You can use browser storage (e.g., localStorage)
@@ -45,9 +45,19 @@ export default function MealPlanPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const token = Cookies.get("token");
+
         const [productsResponse, recipesResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/product/"),
-          fetch("http://localhost:8080/api/recipe/"),
+          fetch("http://localhost:8080/api/product/", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          fetch("http://localhost:8080/api/recipe/", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
         ]);
 
         const [productsData, recipesData] = await Promise.all([

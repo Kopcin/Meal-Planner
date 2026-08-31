@@ -1,5 +1,6 @@
 package com.mealplanner.fridge;
 
+import com.mealplanner.auth.user.User;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.NotNull;
@@ -46,6 +47,13 @@ public class Product {
     private Set<ProductCategory> categories = new HashSet<>();
 
     private String image;
+
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @Setter
+    private User user;
 
     public Product() {
     }
