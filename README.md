@@ -2,16 +2,19 @@
 
 Meal Planner is a full-stack web application for planning meals, managing recipes and products, and automatically generating meal plans and shopping lists.
 
-<video src="./showcase_1.mp4" controls></video>
+https://github.com/user-attachments/assets/279021be-a59a-40d8-b20c-f070183b9219
 
-
-<video src="./showcase_2.mp4" controls></video>
+https://github.com/user-attachments/assets/abebff72-dc90-409d-b255-ac75ea5937d4
 
 ## Features
 
 - **Meal plan generation** — automatically generate meal plans based on the selected number of days and meals per day.
 - **Meal plan management** — create, edit, save, and load meal plans.
 - **Recipe management** — browse available recipes and assign them to individual meals.
+
+
+
+
 - **Product management** — manage products and their quantities used in recipes.
 - **Shopping list generation** — automatically calculate a shopping list based on the selected meal plan.
 - **Meal editing** — replace individual meals with recipes from the available recipe collection.
