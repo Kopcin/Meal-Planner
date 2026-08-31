@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
 
 @Service
@@ -20,7 +21,7 @@ import java.util.Map;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final AuthenticationManager authManager;
 
     public ResponseEntity<?> register(RegisterRequest request) {
@@ -46,7 +47,12 @@ public class AuthService {
                     request.getUsername(), request.getPassword()
             ));
 
-            String token = jwtUtil.generateToken(request.getUsername());
+            User user = userRepository
+                    .findByUsername(request.getUsername())
+                    .orElseThrow();
+
+            String token = jwtService.generateToken(user);
+
             System.out.println("Token: " + token);
             System.out.println("Username from token: " + token);
 
