@@ -1,5 +1,6 @@
 package com.mealplanner.fridge;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class ProductCategory {
     private ProductCategory parent;
 
     @ManyToMany(mappedBy = "categories")
+    @JsonIgnore
     private Set<Product> products = new HashSet<>();
 
     public ProductCategory() {

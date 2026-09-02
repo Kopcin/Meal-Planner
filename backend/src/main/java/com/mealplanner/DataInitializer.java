@@ -8,9 +8,10 @@ import com.mealplanner.fridge.ProductCategoryService;
 import com.mealplanner.fridge.ProductRepository;
 import com.mealplanner.recipe.Recipe;
 import com.mealplanner.recipe.RecipeService;
+import com.mealplanner.recipe.RecipeRepository;
+import com.mealplanner.mealplan.MealPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@Profile("dev")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
@@ -30,13 +30,37 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductCategoryService categoryService;
     private final ProductRepository productRepository;
     private final RecipeService recipeService;
+    private final RecipeRepository recipeRepository;
+    private final MealPlanRepository mealPlanRepository;
 
     @Override
     public void run(String... args) throws Exception {
+        User testUser = createUserIfNotExists("testuser", "testuser@dev.local");
+        User testUser2 = createUserIfNotExists("testuser2", "testuser2@dev.local");
+        resetSeedData();
+
         createCategories();
-        createProducts();
-        createRecipes();
+        createProducts(testUser);
+        createRecipes(testUser, false);
+        createProducts(testUser2);
+        createRecipes(testUser2, true);
         createAdminIfNotExists();
+    }
+
+    private User createUserIfNotExists(String username, String email) {
+        return userRepository.findByUsername(username).orElseGet(() -> userRepository.save(
+                User.builder()
+                        .username(username)
+                        .email(email)
+                        .password(passwordEncoder.encode("1234"))
+                        .role(Role.USER)
+                        .build()));
+    }
+
+    private void resetSeedData() {
+        mealPlanRepository.deleteAll();
+        recipeRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     private void createCategories() {
@@ -65,80 +89,43 @@ public class DataInitializer implements CommandLineRunner {
                 .anyMatch(category -> category.getName().equalsIgnoreCase(name));
     }
 
-    private void createProducts() {
-        if (productRepository.count() > 0) {
-            return;
-        }
-
-        Product milk = new Product("Milk", "1 liter of milk");
-        productRepository.save(milk);
-
-        productRepository.save(
-                new Product("Product 1", "Description for product 1", 10.00));
-
-        productRepository.save(
-                new Product("Product 2", "Description for product 2", 20.00));
-
-        productRepository.save(
-                new Product("Product 3", "Description for product 3", 30.00));
-
-        productRepository.save(
-                new Product("ham", "just ham", 16.99,
-                        LocalDate.now().plusDays(5)));
-
-        productRepository.save(
-                new Product("cheese", "", 8.99,
-                        LocalDate.now().plusDays(12)));
-
-        productRepository.save(
-                new Product("bread", "", 3.20,
-                        LocalDate.now().plusDays(6)));
-
-        productRepository.save(
-                new Product("chicken breast", "Boneless chicken breast", 15.00,
-                        LocalDate.now().plusDays(7)));
-
-        productRepository.save(
-                new Product("tomato", "Fresh tomatoes", 4.99,
-                        LocalDate.now().plusDays(3)));
-
-        productRepository.save(
-                new Product("cucumber", "Green cucumber", 2.50,
-                        LocalDate.now().plusDays(10)));
-
-        productRepository.save(
-                new Product("butter", "Salted butter", 5.50,
-                        LocalDate.now().plusDays(14)));
-
-        productRepository.save(
-                new Product("lettuce", "Fresh lettuce", 2.30,
-                        LocalDate.now().plusDays(2)));
-
-        productRepository.save(
-                new Product("pasta", "Pasta (spaghetti)", 2.99,
-                        LocalDate.now().plusDays(20)));
-
-        productRepository.save(
-                new Product("tomato sauce", "Tomato sauce (jar)", 4.50,
-                        LocalDate.now().plusDays(30)));
-
-        productRepository.save(
-                new Product("parmesan", "Parmesan cheese (grated)", 6.00,
-                        LocalDate.now().plusDays(45)));
-
-        productRepository.save(
-                new Product("basil", "Fresh basil", 1.80,
-                        LocalDate.now().plusDays(120)));
+    private void createProducts(User owner) {
+        productRepository.save(product("Milk", "1 liter of milk", null, owner));
+        productRepository.save(product("Product 1", "Description for product 1", 10.00, owner));
+        productRepository.save(product("Product 2", "Description for product 2", 20.00, owner));
+        productRepository.save(product("Product 3", "Description for product 3", 30.00, owner));
+        productRepository.save(product("ham", "just ham", 16.99, LocalDate.now().plusDays(5), owner));
+        productRepository.save(product("cheese", "", 8.99, LocalDate.now().plusDays(12), owner));
+        productRepository.save(product("bread", "", 3.20, LocalDate.now().plusDays(6), owner));
+        productRepository.save(product("chicken breast", "Boneless chicken breast", 15.00, LocalDate.now().plusDays(7), owner));
+        productRepository.save(product("tomato", "Fresh tomatoes", 4.99, LocalDate.now().plusDays(3), owner));
+        productRepository.save(product("cucumber", "Green cucumber", 2.50, LocalDate.now().plusDays(10), owner));
+        productRepository.save(product("butter", "Salted butter", 5.50, LocalDate.now().plusDays(14), owner));
+        productRepository.save(product("lettuce", "Fresh lettuce", 2.30, LocalDate.now().plusDays(2), owner));
+        productRepository.save(product("pasta", "Pasta (spaghetti)", 2.99, LocalDate.now().plusDays(20), owner));
+        productRepository.save(product("tomato sauce", "Tomato sauce (jar)", 4.50, LocalDate.now().plusDays(30), owner));
+        productRepository.save(product("parmesan", "Parmesan cheese (grated)", 6.00, LocalDate.now().plusDays(45), owner));
+        productRepository.save(product("basil", "Fresh basil", 1.80, LocalDate.now().plusDays(120), owner));
     }
 
-    private void createRecipes() {
-        if (recipeService.findAllRecipes().stream()
-                .anyMatch(recipe ->
-                        recipe.getTitle().equalsIgnoreCase("Spaghetti bolognese"))) {
+    private Product product(String name, String description, Double price, User owner) {
+        return product(name, description, price, null, owner);
+    }
+
+    private Product product(String name, String description, Double price, LocalDate expirationDate, User owner) {
+        Product product = new Product(name, description, price, expirationDate);
+        product.setUser(owner);
+        return product;
+    }
+
+    private void createRecipes(User owner, boolean onlyThree) {
+
+        List<Product> allExistingProducts = productRepository.findByUserId(owner.getId());
+
+        if (onlyThree) {
+            createThreeRecipes(owner, allExistingProducts);
             return;
         }
-
-        List<Product> allExistingProducts = productRepository.findAll();
 
         String searchTerm = "cheese";
 
@@ -156,7 +143,7 @@ public class DataInitializer implements CommandLineRunner {
                 products,
                 List.of());
 
-        recipeService.createRecipe(spaghetti);
+        recipeService.createRecipe(spaghetti, owner);
 
         Recipe sandwich = new Recipe(
                 "Sandwich",
@@ -168,7 +155,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("lettuce", "tomato"));
 
-        recipeService.createRecipe(sandwich);
+        recipeService.createRecipe(sandwich, owner);
 
         Recipe salad = new Recipe(
                 "Fresh Salad",
@@ -181,7 +168,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("olive oil", "vinegar"));
 
-        recipeService.createRecipe(salad);
+        recipeService.createRecipe(salad, owner);
 
         Recipe pancakes = new Recipe(
                 "Pancakes",
@@ -194,7 +181,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("syrup"));
 
-        recipeService.createRecipe(pancakes);
+        recipeService.createRecipe(pancakes, owner);
 
         Recipe smoothie = new Recipe(
                 "Berry Smoothie",
@@ -207,7 +194,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of());
 
-        recipeService.createRecipe(smoothie);
+        recipeService.createRecipe(smoothie, owner);
 
         Recipe chickenSalad = new Recipe(
                 "Chicken Salad",
@@ -221,7 +208,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("olive oil", "salt", "pepper"));
 
-        recipeService.createRecipe(chickenSalad);
+        recipeService.createRecipe(chickenSalad, owner);
 
         Recipe grilledChicken = new Recipe(
                 "Grilled Chicken",
@@ -232,7 +219,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("garlic", "paprika", "olive oil"));
 
-        recipeService.createRecipe(grilledChicken);
+        recipeService.createRecipe(grilledChicken, owner);
 
         Recipe tomatoSoup = new Recipe(
                 "Tomato Soup",
@@ -243,7 +230,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("onion", "garlic", "cream"));
 
-        recipeService.createRecipe(tomatoSoup);
+        recipeService.createRecipe(tomatoSoup, owner);
 
         Recipe cucumberSalad = new Recipe(
                 "Cucumber Salad",
@@ -255,7 +242,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("olive oil", "lemon juice"));
 
-        recipeService.createRecipe(cucumberSalad);
+        recipeService.createRecipe(cucumberSalad, owner);
 
         Recipe butteredToast = new Recipe(
                 "Buttered Toast",
@@ -266,7 +253,7 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of());
 
-        recipeService.createRecipe(butteredToast);
+        recipeService.createRecipe(butteredToast, owner);
 
         Recipe pastaWithTomatoSauce = new Recipe(
                 "Pasta with Tomato Sauce and Cheese",
@@ -280,7 +267,27 @@ public class DataInitializer implements CommandLineRunner {
                         .toList(),
                 List.of("garlic", "olive oil", "salt"));
 
-        recipeService.createRecipe(pastaWithTomatoSauce);
+        recipeService.createRecipe(pastaWithTomatoSauce, owner);
+    }
+
+    private void createThreeRecipes(User owner, List<Product> products) {
+        Recipe sandwich = new Recipe("Sandwich", "Quick and tasty snack",
+                products.stream().filter(product -> product.getName().equalsIgnoreCase("bread")
+                        || product.getName().equalsIgnoreCase("ham")).toList(),
+                List.of("lettuce", "tomato"));
+        recipeService.createRecipe(sandwich, owner);
+
+        Recipe salad = new Recipe("Fresh Salad", "Healthy green salad",
+                products.stream().filter(product -> product.getName().equalsIgnoreCase("lettuce")
+                        || product.getName().equalsIgnoreCase("cucumber")
+                        || product.getName().equalsIgnoreCase("cheese")).toList(),
+                List.of("olive oil", "vinegar"));
+        recipeService.createRecipe(salad, owner);
+
+        Recipe pancakes = new Recipe("Pancakes", "Fluffy breakfast pancakes",
+                products.stream().filter(product -> product.getName().equalsIgnoreCase("milk")).toList(),
+                List.of("flour", "eggs", "syrup"));
+        recipeService.createRecipe(pancakes, owner);
     }
 
     private void createAdminIfNotExists() {

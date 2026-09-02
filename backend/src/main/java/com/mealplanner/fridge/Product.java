@@ -1,6 +1,7 @@
 package com.mealplanner.fridge;
 
 import com.mealplanner.auth.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.NotNull;
@@ -52,6 +53,7 @@ public class Product {
 //    @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     @Setter
     private User user;
 

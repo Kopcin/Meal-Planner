@@ -1,5 +1,7 @@
 package com.mealplanner.recipe;
 
+import com.mealplanner.auth.user.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,31 +18,31 @@ public class RecipeController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Recipe findRecipeById(@PathVariable Long id) {
-        return recipeService.findRecipeById(id)
+    public Recipe findRecipeById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return recipeService.findRecipeById(id, user)
                 .orElseThrow(() -> new RecipeNotFoundException(id));
     }
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Recipe> findRecipes() {
-        return recipeService.findAllRecipes();
+    public Collection<Recipe> findRecipes(@AuthenticationPrincipal User user) {
+        return recipeService.findAllRecipes(user);
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public Recipe createRecipe(@RequestBody Recipe recipe) {
-        return recipeService.createRecipe(recipe);
+    public Recipe createRecipe(@RequestBody Recipe recipe, @AuthenticationPrincipal User user) {
+        return recipeService.createRecipe(recipe, user);
     }
 
     // TODO: put mapping
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRecipe(@PathVariable Long id) {
-        if (recipeService.findRecipeById(id).isEmpty()) {
+    public void deleteRecipe(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        if (recipeService.findRecipeById(id, user).isEmpty()) {
             throw new RecipeNotFoundException(id);
         }
-        recipeService.deleteRecipeById(id);
+        recipeService.deleteRecipeById(id, user);
     }
 }

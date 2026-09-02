@@ -1,6 +1,8 @@
 package com.mealplanner.recipe;
 
+import com.mealplanner.auth.user.User;
 import com.mealplanner.fridge.Product;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,6 +32,7 @@ public class Recipe {
     @JoinTable(name = "recipe_product",
             joinColumns = @JoinColumn(name = "recipe_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id"))
+    @Setter
     private List<Product> databaseProducts;
 
     // Store the product names that are not yet in the database
@@ -39,6 +42,12 @@ public class Recipe {
     private List<String> unassignedProducts;
 
     private String image;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    @Setter
+    private User user;
 
     public Recipe() {
     }

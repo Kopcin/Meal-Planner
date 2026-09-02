@@ -21,8 +21,8 @@ public class ProductController {
     private ProductRepository repository;
 
     @GetMapping("/{id}")
-    public Product findById(@PathVariable Long id) {
-        return repository.findById(id)
+    public Product findById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return repository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
@@ -40,8 +40,9 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product updateProduct(@Valid @PathVariable("id") final Long id, @RequestBody final Product product) {
-        return repository.findById(id)
+    public Product updateProduct(@Valid @PathVariable("id") final Long id, @RequestBody final Product product,
+                                 @AuthenticationPrincipal User user) {
+        return repository.findByIdAndUserId(id, user.getId())
                 .map(existingProduct -> {
                     existingProduct.setName(product.getName());
                     existingProduct.setDescription(product.getDescription());
@@ -51,5 +52,11 @@ public class ProductController {
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    // TODO: delete mapping
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        Product product = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        repository.delete(product);
+    }
 }

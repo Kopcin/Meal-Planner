@@ -1,5 +1,6 @@
 package com.mealplanner.mealplan;
 
+import com.mealplanner.auth.user.User;
 import com.mealplanner.mealplan.dto.*;
 import com.mealplanner.mealplan.entity.DayPlan;
 import com.mealplanner.mealplan.entity.MealPlan;
@@ -19,32 +20,34 @@ public class MealPlanService {
     private final MealPlanRepository mealPlanRepository;
     private final RecipeRepository recipeRepository;
 
-    public MealPlanResponse create(MealPlanRequest request) {
-        MealPlan plan = buildMealPlan(new MealPlan(), request);
+    public MealPlanResponse create(MealPlanRequest request, User user) {
+        MealPlan plan = new MealPlan();
+        plan.setUser(user);
+        plan = buildMealPlan(plan, request);
 
         MealPlan savedPlan = mealPlanRepository.save(plan);
 
         return mealPlanMapper.toResponse(savedPlan);
     }
 
-    public MealPlanResponse findById(Long id) {
+    public MealPlanResponse findById(Long id, User user) {
 
-        MealPlan plan = mealPlanRepository.findById(id)
+        MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));
 
         return mealPlanMapper.toResponse(plan);
     }
 
-    public List<MealPlanSummaryResponse> findAll() {
+    public List<MealPlanSummaryResponse> findAll(User user) {
 
-        return mealPlanRepository.findAll()
+        return mealPlanRepository.findAllByUser(user)
                 .stream()
                 .map(mealPlanMapper::toSummary)
                 .toList();
     }
 
-    public MealPlanResponse update(Long id, MealPlanRequest request) {
-        MealPlan plan = mealPlanRepository.findById(id)
+    public MealPlanResponse update(Long id, MealPlanRequest request, User user) {
+        MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));
 
         plan.getDayPlans().clear();
@@ -73,7 +76,7 @@ public class MealPlanService {
 
                 if (mealRequest.recipeId() != null) {
                     Recipe recipe = recipeRepository
-                            .findById(mealRequest.recipeId())
+                            .findByIdAndUser(mealRequest.recipeId(), plan.getUser())
                             .orElseThrow(() ->
                                     new EntityNotFoundException("Recipe not found")
                             );
