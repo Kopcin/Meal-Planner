@@ -30,6 +30,29 @@
   white-space: nowrap;
 }
 
+.authControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoutButton {
+  border: 0;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.logoutButton:hover {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
 .navItem {
   margin: 0;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import styles from "./navbar.module.css";
@@ -16,6 +16,7 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,6 +35,12 @@ export default function Navbar() {
     }
   }, [pathname]);
 
+  const handleLogout = () => {
+    Cookies.remove("token", { path: "/" });
+    setUsername(null);
+    router.push("/");
+  };
+
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navList}>
@@ -46,7 +53,12 @@ export default function Navbar() {
         ))}
         <li className={styles.authItem}>
           {username ? (
-            <span className={styles.authStatus}>Logged in as {username}</span>
+            <div className={styles.authControls}>
+              <span className={styles.authStatus}>Logged in as {username}</span>
+              <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
           ) : (
             <Link href="/login" className={styles.navLink}>
               Login
