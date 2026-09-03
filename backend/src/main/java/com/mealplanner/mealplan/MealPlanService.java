@@ -29,7 +29,7 @@ public class MealPlanService {
     public MealPlanResponse create(MealPlanRequest request, User user) {
         MealPlan plan = new MealPlan();
         plan.setUser(user);
-        plan = buildMealPlan(plan, request);
+        buildMealPlan(plan, request);
 
         MealPlan savedPlan = mealPlanRepository.save(plan);
 
@@ -61,9 +61,9 @@ public class MealPlanService {
 
         plan.getDayPlans().clear();
 
-        MealPlan updatedPlan = buildMealPlan(plan, request);
+        buildMealPlan(plan, request);
 
-        MealPlan savedPlan = mealPlanRepository.save(updatedPlan);
+        MealPlan savedPlan = mealPlanRepository.save(plan);
 
         return mealPlanMapper.toResponse(savedPlan);
     }
@@ -76,7 +76,7 @@ public class MealPlanService {
         mealPlanRepository.delete(plan);
     }
 
-    private MealPlan buildMealPlan(MealPlan plan, MealPlanRequest request) {
+    private void buildMealPlan(MealPlan plan, MealPlanRequest request) {
 
         plan.setName(request.name());
         plan.setStartDate(request.startDate());
@@ -104,6 +104,5 @@ public class MealPlanService {
             plan.addDayPlan(day);
         }
 
-        return plan;
     }
 }
