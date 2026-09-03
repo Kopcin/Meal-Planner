@@ -61,3 +61,15 @@ export async function getMealPlan(id: number): Promise<MealPlanResponse> {
 
   return response.json();
 }
+
+export async function deleteMealPlan(id: number): Promise<void> {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete meal plan: ${response.status} ${errorText}`);
+  }
+}

@@ -37,4 +37,9 @@ public class MealPlanController {
                                    @AuthenticationPrincipal User user) {
         return service.update(id, request, user);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        service.delete(id, user);
+    }
 }

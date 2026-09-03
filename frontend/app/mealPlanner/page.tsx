@@ -12,6 +12,7 @@ import {
   saveMealPlan,
   getMealPlans,
   getMealPlan,
+  deleteMealPlan,
 } from "@/services/mealPlanner/mealPlanApi";
 import styles from "./mealPlannerPage.module.css";
 import { enrichMealPlan } from "@/services/mealPlanner/enrichMealPlan";
@@ -180,6 +181,28 @@ export default function MealPlanPage() {
       setChangedMeals(new Set());
     } catch (error) {
       console.error(`Failed to open meal plan ${planId}:`, error);
+    }
+  };
+
+  const handleDeleteMealPlan = async (planId: number) => {
+    if (!window.confirm("Are you sure you want to delete this meal plan?")) {
+      return;
+    }
+
+    try {
+      await deleteMealPlan(planId);
+      setSavedPlans((plans) => plans.filter((plan) => plan.id !== planId));
+
+      if (openedPlanId === planId) {
+        setOpenedPlanId(null);
+        setMealPlan([]);
+        setShoppingList([]);
+        setHasUnsavedChanges(false);
+        setChangedMeals(new Set());
+      }
+    } catch (error) {
+      console.error("Failed to delete meal plan:", error);
+      alert("Failed to delete meal plan.");
     }
   };
 
@@ -391,6 +414,14 @@ export default function MealPlanPage() {
             <div key={plan.id} className={styles.savedPlanItem}>
               <button onClick={() => handleOpenMealPlan(plan.id)}>
                 {openedPlanId === plan.id ? "✎" : "○"} {plan.name}
+              </button>
+              <button
+                type="button"
+                className={styles.deletePlanButton}
+                onClick={() => handleDeleteMealPlan(plan.id)}
+                aria-label={`Delete ${plan.name}`}
+              >
+                Delete
               </button>
             </div>
           ))}

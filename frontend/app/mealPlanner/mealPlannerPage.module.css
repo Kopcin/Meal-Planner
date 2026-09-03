@@ -270,3 +270,26 @@
   gap: 24px;
   align-items: flex-start;
 }
+
+.savedPlanItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.deletePlanButton {
+  border: 0;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.deletePlanButton:hover {
+  background: #fef2f2;
+  color: #991b1b;
+}

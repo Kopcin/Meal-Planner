@@ -59,6 +59,13 @@ public class MealPlanService {
         return mealPlanMapper.toResponse(savedPlan);
     }
 
+    public void delete(Long id, User user) {
+        MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));
+
+        mealPlanRepository.delete(plan);
+    }
+
     private MealPlan buildMealPlan(MealPlan plan, MealPlanRequest request) {
 
         plan.setName(request.name());
