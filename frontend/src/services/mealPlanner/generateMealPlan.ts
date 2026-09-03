@@ -19,6 +19,10 @@ export function generateMealPlan(
   mealsPerDay: number = 3,
   startDate: string = new Date().toISOString().split("T")[0],
 ): DayPlan[] {
+  if (recipes.length === 0 || numDays <= 0 || mealsPerDay <= 0) {
+    return [];
+  }
+
   const template = mealTemplates.default;
   const mealsForDay = template.allowedMeals.slice(0, mealsPerDay);
   const mealPlan: DayPlan[] = [];
@@ -27,17 +31,9 @@ export function generateMealPlan(
   const usedProducts = new Set<string>();
   let randomStartIndex = Math.floor(Math.random() * recipes.length);
 
-  const sortedProducts = products
+  const sortedProducts = [...products]
     .filter((p) => p.expirationDate)
     .sort((a, b) => getTime(a.expirationDate) - getTime(b.expirationDate));
-
-  // const sortedProducts = [...products].sort((a, b) => {
-  //   if (!a.expirationDate && !b.expirationDate) return 0;
-  //   if (!a.expirationDate) return 1;
-  //   if (!b.expirationDate) return 1;
-
-  //   return getTime(a.expirationDate) - getTime(b.expirationDate);
-  // });
 
   logInBrowser("Sorted products by expiration date:", sortedProducts);
 
@@ -56,8 +52,7 @@ export function generateMealPlan(
       let bestRecipe: Meal | null = null;
       let bestScore = -Infinity;
 
-      // Evaluate each recipe
-      // for (const recipe of recipes) {
+      // Evaluate each recipe.
       for (let j = 0; j < recipes.length; j++) {
         const recipe = recipes[(randomStartIndex + j) % recipes.length];
 
@@ -91,7 +86,7 @@ export function generateMealPlan(
         dayPlan.mealSlots.push(bestRecipe);
         usedRecipes.add(bestRecipe.recipeName);
 
-        const recipe = recipes.find((r) => r.id === bestRecipe!.recipeId);
+        const recipe = recipes.find((r) => r.id === bestRecipe.recipeId);
 
         if (recipe) {
           const { availableIngredients } = calculateMealIngredients(

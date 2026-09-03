@@ -17,12 +17,12 @@ export default function MealPlanHeader({ canSave, onGenerate, onSave }: Props) {
         </p>
       </div>
 
-      <button onClick={onGenerate} className={styles.generateButton}>
+      <button type="button" onClick={onGenerate} className={styles.generateButton}>
         Generate New Plan
       </button>
 
       {canSave && (
-        <button onClick={onSave} className={styles.generateButton}>
+        <button type="button" onClick={onSave} className={styles.generateButton}>
           Save Plan
         </button>
       )}

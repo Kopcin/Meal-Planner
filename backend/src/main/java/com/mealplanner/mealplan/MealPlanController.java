@@ -4,14 +4,16 @@ import com.mealplanner.auth.user.User;
 import com.mealplanner.mealplan.dto.MealPlanRequest;
 import com.mealplanner.mealplan.dto.MealPlanResponse;
 import com.mealplanner.mealplan.dto.MealPlanSummaryResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.Collection;
 
 @RestController
-@RequestMapping("api/meal-plans")
+@RequestMapping("/api/meal-plans")
 @RequiredArgsConstructor
 public class MealPlanController {
 
@@ -28,17 +30,18 @@ public class MealPlanController {
     }
 
     @PostMapping
-    public MealPlanResponse create(@RequestBody MealPlanRequest request, @AuthenticationPrincipal User user) {
+    public MealPlanResponse create(@Valid @RequestBody MealPlanRequest request, @AuthenticationPrincipal User user) {
         return service.create(request, user);
     }
 
     @PutMapping("/{id}")
-    public MealPlanResponse update(@PathVariable Long id, @RequestBody MealPlanRequest request,
+    public MealPlanResponse update(@PathVariable Long id, @Valid @RequestBody MealPlanRequest request,
                                    @AuthenticationPrincipal User user) {
         return service.update(id, request, user);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
         service.delete(id, user);
     }

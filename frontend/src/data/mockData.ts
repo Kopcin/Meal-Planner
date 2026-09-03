@@ -1,6 +1,5 @@
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
-import { mock } from "node:test";
 
 function createProduct(
     id: number,

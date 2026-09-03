@@ -1,13 +1,18 @@
 package com.mealplanner.mealplan;
 
 import com.mealplanner.auth.user.User;
-import com.mealplanner.mealplan.dto.*;
+import com.mealplanner.mealplan.dto.DayPlanRequest;
+import com.mealplanner.mealplan.dto.MealPlanRequest;
+import com.mealplanner.mealplan.dto.MealPlanResponse;
+import com.mealplanner.mealplan.dto.MealPlanSummaryResponse;
+import com.mealplanner.mealplan.dto.MealSlotRequest;
 import com.mealplanner.mealplan.entity.DayPlan;
 import com.mealplanner.mealplan.entity.MealPlan;
 import com.mealplanner.mealplan.entity.MealSlot;
 import com.mealplanner.recipe.Recipe;
 import com.mealplanner.recipe.RecipeRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,7 @@ public class MealPlanService {
     private final MealPlanRepository mealPlanRepository;
     private final RecipeRepository recipeRepository;
 
+    @Transactional
     public MealPlanResponse create(MealPlanRequest request, User user) {
         MealPlan plan = new MealPlan();
         plan.setUser(user);
@@ -30,6 +36,7 @@ public class MealPlanService {
         return mealPlanMapper.toResponse(savedPlan);
     }
 
+    @Transactional(readOnly = true)
     public MealPlanResponse findById(Long id, User user) {
 
         MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
@@ -38,6 +45,7 @@ public class MealPlanService {
         return mealPlanMapper.toResponse(plan);
     }
 
+    @Transactional(readOnly = true)
     public List<MealPlanSummaryResponse> findAll(User user) {
 
         return mealPlanRepository.findAllByUser(user)
@@ -46,6 +54,7 @@ public class MealPlanService {
                 .toList();
     }
 
+    @Transactional
     public MealPlanResponse update(Long id, MealPlanRequest request, User user) {
         MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));
@@ -59,6 +68,7 @@ public class MealPlanService {
         return mealPlanMapper.toResponse(savedPlan);
     }
 
+    @Transactional
     public void delete(Long id, User user) {
         MealPlan plan = mealPlanRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new EntityNotFoundException("Meal plan not found"));

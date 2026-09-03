@@ -1,7 +1,9 @@
 package com.mealplanner.mealplan.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record MealSlotRequest(
-        String label,
+        @NotBlank(message = "Meal label is required") String label,
         Long recipeId
 ) {
 }

@@ -1,0 +1,21 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.editorLayout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.errorMessage {
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .editorLayout {
+    flex-direction: column;
+  }
+}
