@@ -3,6 +3,7 @@
 import { Product } from "@/types/Product";
 import { formatDateString } from "@/utils/dateFormatter";
 import Image from "next/image";
+import styles from "./ProductCard.module.css";
 
 interface ProductCardProps {
   product: Product;
@@ -19,16 +20,14 @@ export default function ProductCard({
 
   return (
     <div
-      className={`product-card border rounded-lg shadow-md overflow-hidden bg-white dark:bg-gray-800 ${
-        isSelected ? "border-blue-500 scale-105 z-10" : ""
-      }`}
+      className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
       onClick={onClick}
       style={{
         cursor: onClick ? "pointer" : "default",
         transition: "transform 0.2s ease-in-out",
       }}
     >
-      <div className="image-wrapper">
+      <div className={styles.imageWrapper}>
         <Image
           src={image}
           alt={product.name}
@@ -37,20 +36,20 @@ export default function ProductCard({
           layout="responsive"
           objectFit="cover"
           priority
-          className="rounded-t-lg"
+          className={styles.image}
         />
       </div>
-      <div className="p-4">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+      <div className={styles.content}>
+        <h2 className={styles.name}>
           {product.name}
         </h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
+        <p className={styles.description}>
           {product.description}
         </p>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
+        <p className={styles.expiration}>
           {formatDateString(product.expirationDate)}
         </p>
-        <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+        <div className={styles.price}>
           {product.price ? `${product.price} zł` : "Brak ceny"}
         </div>
       </div>

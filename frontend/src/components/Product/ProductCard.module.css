@@ -1,0 +1,50 @@
+.card {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.06);
+  transition: transform 0.2s ease-in-out, border-color 0.2s;
+}
+
+.card:hover {
+  border-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.cardSelected {
+  border-color: #2563eb;
+  transform: scale(1.02);
+}
+
+.imageWrapper {
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+  width: 100%;
+}
+
+.content {
+  padding: 16px;
+}
+
+.name {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.description,
+.expiration {
+  margin: 0 0 12px;
+  color: #4b5563;
+}
+
+.price {
+  color: #2563eb;
+  font-size: 1.125rem;
+  font-weight: 600;
+}

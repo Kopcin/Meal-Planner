@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import styles from "./loginPage.module.css";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -42,16 +43,17 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-4 border rounded">
-            <h1 className="text-2xl mb-4">Login</h1>
+        <div className={styles.page}>
+          <div className={styles.card}>
+            <h1 className={styles.title}>Login</h1>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className={styles.form}>
                 <input
                     type="text"
                     placeholder="Your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className={styles.input}
                     required
                 />
                 <input
@@ -59,18 +61,19 @@ export default function LoginPage() {
                     placeholder="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className={styles.input}
                     required
                 />
                 <button
                     type="submit"
-                    className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className={styles.button}
                 >
                     Login
                 </button>
 
-                {error && <p className="text-red-600">{error}</p>}
+                {error && <p className={styles.error}>{error}</p>}
             </form>
+          </div>
         </div>
     );
 }

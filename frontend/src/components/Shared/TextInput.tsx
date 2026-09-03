@@ -1,4 +1,5 @@
 "use client";
+import styles from "./FormFields.module.css";
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: string;
@@ -16,11 +17,8 @@ export default function TextInput({
   ...props
 }: TextInputProps) {
   return (
-    <div className="mb-4">
-      <label
-        htmlFor={id}
-        className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-      >
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
         {label}
       </label>
       <input
@@ -29,7 +27,7 @@ export default function TextInput({
         value={value}
         onChange={onChange}
         required={required}
-        className="form-input mt-1 block w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-lg"
+        className={styles.input}
         {...props}
       />
     </div>

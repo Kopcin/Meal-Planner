@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import styles from "./ContactForm.module.css";
 
 export default function Form() {
   const [name, setName] = useState("");
@@ -15,8 +16,8 @@ export default function Form() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <div>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.field}>
         <label htmlFor="name">Name:</label>
         <input
           type="text"
@@ -26,7 +27,7 @@ export default function Form() {
           required
         />
       </div>
-      <div>
+      <div className={styles.field}>
         <label htmlFor="email">Email:</label>
         <input
           type="email"
@@ -36,7 +37,7 @@ export default function Form() {
           required
         />
       </div>
-      <div>
+      <div className={styles.field}>
         <label htmlFor="message">Message:</label>
         <textarea
           id="message"
@@ -45,7 +46,7 @@ export default function Form() {
           required
         />
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" className={styles.button}>Submit</button>
     </form>
   );
 }
