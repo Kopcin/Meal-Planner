@@ -50,7 +50,7 @@ export default function ProductCard({
           {formatDateString(product.expirationDate)}
         </p>
         <div className={styles.price}>
-          {product.price ? `${product.price} zł` : "Brak ceny"}
+          {product.price != null ? `${product.price} PLN` : "No price"}
         </div>
       </div>
     </div>
