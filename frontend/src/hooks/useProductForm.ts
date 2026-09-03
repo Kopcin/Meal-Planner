@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiRequest } from "@/services/apiClient";
 
 export default function useProductForm() {
   const [name, setName] = useState("");
@@ -19,7 +20,7 @@ export default function useProductForm() {
     // }
 
     try {
-      const response = await fetch("http://localhost:8080/api/product/", {
+      await apiRequest("/product/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,44 +32,6 @@ export default function useProductForm() {
         }),
       });
 
-      // TODO: handle different error causes (validation, network, etc.)
-      if (!response.ok) {
-        let errorMessage ="Failed to submit form";
-
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message;
-        } catch {
-          // If parsing fails, keep the generic error message
-        }
-    
-        switch (response.status) {
-          case 400:
-            setError(errorMessage || "Invalid input. Please check your data.");
-            return;
-
-          case 401:
-            setError("Unauthorized. Please log in.");
-            return;
-
-          case 403:
-            setError("Forbidden. You don't have permission to perform this action.");
-            return;
-            
-          case 500:
-            setError("Server error. Please try again later.");
-            return;
-
-          default:
-            setError(errorMessage);
-            return;
-        }
-      }
-
-      const data = await response.json();
-
-      console.log("Product added:", data);
-
       // If the request is successful, clear the form
       setName("");
       setDescription("");
@@ -77,8 +40,7 @@ export default function useProductForm() {
       alert("Product added successfully!");
     } catch (error) {
       console.error(error);
-      
-      setError("Connection to the server failed. Please try again later.");
+      setError(error instanceof Error ? error.message : "Connection to the server failed.");
     }
   };
 

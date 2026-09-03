@@ -3,73 +3,33 @@ import {
   MealPlanSummaryResponse,
   MealPlanResponse,
 } from "@/types/MealPlan";
-import Cookies from "js-cookie";
+import { apiRequest } from "@/services/apiClient";
 
-const API_URL = "http://localhost:8080/api/meal-plans";
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${Cookies.get("token")}`,
-});
+const API_PATH = "/meal-plans";
 
 export async function saveMealPlan(
   payload: MealPlanRequest,
   id?: number,
 ): Promise<MealPlanResponse> {
-  const url = id ? `${API_URL}/${id}` : API_URL;
-
-  const response = await fetch(url, {
+  return apiRequest<MealPlanResponse>(id ? `${API_PATH}/${id}` : API_PATH, {
     method: id ? "PUT" : "POST",
     headers: {
       "Content-Type": "application/json",
-      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to save meal plan: ${response.status} ${errorText}`,
-    );
-  }
-
-  return response.json();
 }
 
 export async function getMealPlans(): Promise<MealPlanSummaryResponse[]> {
-  const response = await fetch(API_URL, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch meal plans: ${response.status} ${errorText}`);
-  }
-
-  return response.json();
+  return apiRequest<MealPlanSummaryResponse[]>(API_PATH);
 }
 
 export async function getMealPlan(id: number): Promise<MealPlanResponse> {
-  const response = await fetch(`${API_URL}/${id}`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch meal plan ${id}: ${response.status} ${errorText}`);
-  }
-
-  return response.json();
+  return apiRequest<MealPlanResponse>(`${API_PATH}/${id}`);
 }
 
 export async function deleteMealPlan(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}/${id}`, {
+  await apiRequest<void>(`${API_PATH}/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to delete meal plan: ${response.status} ${errorText}`);
-  }
 }

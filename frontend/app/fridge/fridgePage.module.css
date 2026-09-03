@@ -1,0 +1,56 @@
+.page {
+  min-height: 100vh;
+  background: #f7f8fc;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: #6b7280;
+}
+
+.section {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.detail {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.06);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 12px 32px;
+  }
+
+  .title {
+    font-size: 1.65rem;
+  }
+}

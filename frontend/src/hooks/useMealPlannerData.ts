@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import { Product } from "@/types/Product";
 import { Recipe } from "@/types/Recipe";
+import { apiRequest } from "@/services/apiClient";
 
 type MealPlannerData = {
   products: Product[];
@@ -21,34 +21,21 @@ export function useMealPlannerData(): MealPlannerData {
 
     async function loadData() {
       try {
-        const token = Cookies.get("token");
-        const headers = { Authorization: `Bearer ${token}` };
         const [productsResponse, recipesResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/product/", {
-            headers,
+          apiRequest<Product[]>("/product/", {
             signal: controller.signal,
           }),
-          fetch("http://localhost:8080/api/recipe/", {
-            headers,
+          apiRequest<Recipe[]>("/recipe/", {
             signal: controller.signal,
           }),
         ]);
 
-        if (!productsResponse.ok || !recipesResponse.ok) {
-          throw new Error("Failed to load meal planner data");
-        }
-
-        const [productsData, recipesData] = await Promise.all([
-          productsResponse.json(),
-          recipesResponse.json(),
-        ]);
-
-        if (!Array.isArray(productsData) || !Array.isArray(recipesData)) {
+        if (!Array.isArray(productsResponse) || !Array.isArray(recipesResponse)) {
           throw new Error("Meal planner data has an invalid format");
         }
 
-        setProducts(productsData);
-        setRecipes(recipesData);
+        setProducts(productsResponse);
+        setRecipes(recipesResponse);
       } catch (loadError) {
         if (loadError instanceof DOMException && loadError.name === "AbortError") {
           return;

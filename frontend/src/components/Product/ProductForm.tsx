@@ -5,6 +5,7 @@ import ErrorMessage from "../Shared/ErrorMessage";
 import TextInput from "../Shared/TextInput";
 import TextArea from "../Shared/TextArea";
 import SubmitButton from "../Shared/SubmitButton";
+import styles from "./ProductForm.module.css";
 
 export default function ProductForm() {
   const {
@@ -21,7 +22,7 @@ export default function ProductForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md"
+      className={styles.form}
     >
       <ErrorMessage message={error} />
       <TextInput

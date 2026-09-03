@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/Product";
 import { getTime } from "@/utils/dateFormatter";
+import { apiRequest } from "@/services/apiClient";
+import styles from "./ProductList.module.css";
 
 interface ProductListProps {
   onProductClick: (id: number) => void;
@@ -15,29 +17,33 @@ export default function ProductList({
   selectedProductId,
 }: ProductListProps) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchProducts() {
       try {
-        const response = await fetch("http://localhost:8080/api/product/");
-        const data = await response.json();
+        const data = await apiRequest<Product[]>("/product/", {
+          signal: controller.signal,
+        });
+        if (!Array.isArray(data)) throw new Error("Invalid products response");
         setProducts(data);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setError(error instanceof Error ? error.message : "Failed to load products");
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     fetchProducts();
+    return () => controller.abort();
   }, []);
 
-  // const sortByExpirationDate = (products: Product[]): Product[] => {
-  //   return products.sort(
-  //     (a, b) => getTime(a.expirationDate) - getTime(b.expirationDate)
-  //   );
-  // };
-
   const sortByExpirationDate = (products: Product[]): Product[] => {
-    return products.sort((a, b) => {
+    return [...products].sort((a, b) => {
       if (!a.expirationDate) return 1; // Push 'a' to the end if no expiration date
       if (!b.expirationDate) return -1; // Push 'b' to the end if no expiration date
 
@@ -47,12 +53,16 @@ export default function ProductList({
 
   const sortedProducts = sortByExpirationDate(products);
 
+  if (isLoading) return <p className={styles.message}>Loading products...</p>;
+  if (error) return <p className={styles.error}>Failed to load products: {error}</p>;
+
   return (
-    <div className="product-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className={styles.list}>
       {sortedProducts.map((product) => (
         <ProductCard
           key={product.id}
           product={product}
+          isSelected={selectedProductId === product.id}
           onClick={() => onProductClick(product.id)}
         />
       ))}
