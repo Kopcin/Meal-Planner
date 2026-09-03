@@ -8,8 +8,6 @@ import com.mealplanner.fridge.ProductCategoryService;
 import com.mealplanner.fridge.ProductRepository;
 import com.mealplanner.recipe.Recipe;
 import com.mealplanner.recipe.RecipeService;
-import com.mealplanner.recipe.RecipeRepository;
-import com.mealplanner.mealplan.MealPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,15 +28,11 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductCategoryService categoryService;
     private final ProductRepository productRepository;
     private final RecipeService recipeService;
-    private final RecipeRepository recipeRepository;
-    private final MealPlanRepository mealPlanRepository;
 
     @Override
     public void run(String... args) throws Exception {
         User testUser = createUserIfNotExists("testuser", "testuser@dev.local");
         User testUser2 = createUserIfNotExists("testuser2", "testuser2@dev.local");
-        resetSeedData();
-
         createCategories();
         createProducts(testUser);
         createRecipes(testUser, false);
@@ -55,12 +49,6 @@ public class DataInitializer implements CommandLineRunner {
                         .password(passwordEncoder.encode("1234"))
                         .role(Role.USER)
                         .build()));
-    }
-
-    private void resetSeedData() {
-        mealPlanRepository.deleteAll();
-        recipeRepository.deleteAll();
-        productRepository.deleteAll();
     }
 
     private void createCategories() {
@@ -90,6 +78,10 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createProducts(User owner) {
+        if (!productRepository.findByUserId(owner.getId()).isEmpty()) {
+            return;
+        }
+
         productRepository.save(product("Milk", "1 liter of milk", null, owner));
         productRepository.save(product("Product 1", "Description for product 1", 10.00, owner));
         productRepository.save(product("Product 2", "Description for product 2", 20.00, owner));
@@ -119,6 +111,9 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createRecipes(User owner, boolean onlyThree) {
+        if (!recipeService.findAllRecipes(owner).isEmpty()) {
+            return;
+        }
 
         List<Product> allExistingProducts = productRepository.findByUserId(owner.getId());
 
