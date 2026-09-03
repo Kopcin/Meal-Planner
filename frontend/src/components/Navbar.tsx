@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import styles from "./navbar.module.css";
+import styles from "./Navbar.module.css";
 
 const navItems = [
   { href: "/", label: "Home" },
