@@ -17,6 +17,19 @@
   padding: 0;
 }
 
+.authItem {
+  margin: 0 0 0 auto;
+}
+
+.authStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .navItem {
   margin: 0;
 }
