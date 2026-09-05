@@ -78,30 +78,52 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createProducts(User owner) {
-        if (!productRepository.findByUserId(owner.getId()).isEmpty()) {
-            return;
-        }
+        List<Product> products = List.of(
+                product("Milk", "1 liter of milk", 3.99, LocalDate.now().plusDays(7),
+                        "/images/products/milk.jpg", owner),
+                product("Bread", "Whole wheat bread", 3.20, LocalDate.now().plusDays(6),
+                        "/images/products/bread.jpg", owner),
+                product("Ham", "Sliced cooked ham", 16.99, LocalDate.now().plusDays(5),
+                        "/images/products/ham.jpg", owner),
+                product("Cheese", "Mild cheddar cheese", 8.99, LocalDate.now().plusDays(12),
+                        "/images/products/cheese.jpg", owner),
+                product("Chicken Breast", "Boneless chicken breast", 15.00, LocalDate.now().plusDays(7),
+                        "/images/products/chicken-breast.jpg", owner),
+                product("Tomato", "Fresh tomatoes", 4.99, LocalDate.now().plusDays(3),
+                        "/images/products/tomato.jpg", owner),
+                product("Cucumber", "Fresh green cucumber", 2.50, LocalDate.now().plusDays(10),
+                        "/images/products/cucumber.jpg", owner),
+                product("Lettuce", "Fresh green lettuce", 2.30, LocalDate.now().plusDays(2),
+                        "/images/products/lettuce.jpg", owner),
+                product("Pasta", "Spaghetti pasta", 2.99, LocalDate.now().plusDays(60),
+                        "/images/products/pasta.jpg", owner),
+                product("Eggs", "Free-range chicken eggs", 9.50, LocalDate.now().plusDays(21),
+                        "/images/products/eggs.jpg", owner)
+        );
 
-        productRepository.save(product("Milk", "1 liter of milk", null, owner));
-        productRepository.save(product("Product 1", "Description for product 1", 10.00, owner));
-        productRepository.save(product("Product 2", "Description for product 2", 20.00, owner));
-        productRepository.save(product("Product 3", "Description for product 3", 30.00, owner));
-        productRepository.save(product("ham", "just ham", 16.99, LocalDate.now().plusDays(5), owner));
-        productRepository.save(product("cheese", "", 8.99, LocalDate.now().plusDays(12), owner));
-        productRepository.save(product("bread", "", 3.20, LocalDate.now().plusDays(6), owner));
-        productRepository.save(product("chicken breast", "Boneless chicken breast", 15.00, LocalDate.now().plusDays(7), owner));
-        productRepository.save(product("tomato", "Fresh tomatoes", 4.99, LocalDate.now().plusDays(3), owner));
-        productRepository.save(product("cucumber", "Green cucumber", 2.50, LocalDate.now().plusDays(10), owner));
-        productRepository.save(product("butter", "Salted butter", 5.50, LocalDate.now().plusDays(14), owner));
-        productRepository.save(product("lettuce", "Fresh lettuce", 2.30, LocalDate.now().plusDays(2), owner));
-        productRepository.save(product("pasta", "Pasta (spaghetti)", 2.99, LocalDate.now().plusDays(20), owner));
-        productRepository.save(product("tomato sauce", "Tomato sauce (jar)", 4.50, LocalDate.now().plusDays(30), owner));
-        productRepository.save(product("parmesan", "Parmesan cheese (grated)", 6.00, LocalDate.now().plusDays(45), owner));
-        productRepository.save(product("basil", "Fresh basil", 1.80, LocalDate.now().plusDays(120), owner));
+        List<Product> existingProducts = productRepository.findByUserId(owner.getId());
+        products.forEach(product -> {
+            Optional<Product> existingProduct = existingProducts.stream()
+                    .filter(existing -> existing.getName().equalsIgnoreCase(product.getName()))
+                    .findFirst();
+            if (existingProduct.isEmpty()) {
+                productRepository.save(product);
+            } else if (!product.getImage().equals(existingProduct.get().getImage())) {
+                existingProduct.get().setImage(product.getImage());
+                productRepository.save(existingProduct.get());
+            }
+        });
     }
 
     private Product product(String name, String description, Double price, User owner) {
         return product(name, description, price, null, owner);
+    }
+
+    private Product product(String name, String description, Double price,
+                            LocalDate expirationDate, String image, User owner) {
+        Product product = product(name, description, price, expirationDate, owner);
+        product.setImage(image);
+        return product;
     }
 
     private Product product(String name, String description, Double price, LocalDate expirationDate, User owner) {

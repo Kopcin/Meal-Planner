@@ -47,6 +47,7 @@ public class Product {
     )
     private Set<ProductCategory> categories = new HashSet<>();
 
+    @Setter
     private String image;
 
 //    @ManyToOne(fetch = FetchType.LAZY, optional = false)

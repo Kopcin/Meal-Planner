@@ -52,8 +52,7 @@ export default function RecipeCard({
             alt={recipe.title}
             width={150}
             height={200}
-            layout="responsive"
-            objectFit="cover"
+            sizes="(max-width: 768px) 100vw, 25vw"
             priority
             className={styles.image}
           />

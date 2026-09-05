@@ -47,6 +47,7 @@ public class ProductController {
                     existingProduct.setName(product.getName());
                     existingProduct.setDescription(product.getDescription());
                     existingProduct.setPrice(product.getPrice());
+                    existingProduct.setImage(product.getImage());
                     return repository.save(existingProduct);
                 })
                 .orElseThrow(() -> new ProductNotFoundException(id));

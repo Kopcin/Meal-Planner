@@ -4,6 +4,7 @@ import { Product } from "@/types/Product";
 import { formatDateString } from "@/utils/dateFormatter";
 import Image from "next/image";
 import styles from "./ProductCard.module.css";
+import { getApiAssetUrl } from "@/services/apiClient";
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +17,9 @@ export default function ProductCard({
   onClick,
   isSelected,
 }: ProductCardProps) {
-  const image = product.image || "/images/placeholderImg150x200.png";
+  const image = product.image
+    ? getApiAssetUrl(product.image)
+    : "/images/placeholderImg150x200.png";
 
   return (
     <div
@@ -33,9 +36,9 @@ export default function ProductCard({
           alt={product.name}
           width={150}
           height={200}
-          layout="responsive"
-          objectFit="cover"
+          sizes="(max-width: 768px) 100vw, 25vw"
           priority
+          unoptimized={Boolean(product.image)}
           className={styles.image}
         />
       </div>

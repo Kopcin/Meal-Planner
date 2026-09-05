@@ -27,6 +27,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/")
                 .setCachePeriod(3600) // Cache for 1 hour
                 .resourceChain(true);
+
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/static/images/")
+                .setCachePeriod(3600)
+                .resourceChain(true);
     }
 
     // Configure date and time formatting to use ISO format

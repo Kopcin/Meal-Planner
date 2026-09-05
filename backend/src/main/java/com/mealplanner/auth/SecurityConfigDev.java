@@ -30,6 +30,7 @@ public class SecurityConfigDev {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)) // just for H2
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -3,6 +3,13 @@ import Cookies from "js-cookie";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
 
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
+
+export function getApiAssetUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${API_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function getAuthHeaders(): HeadersInit {
   const token = Cookies.get("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
